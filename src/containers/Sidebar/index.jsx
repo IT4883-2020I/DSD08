@@ -14,7 +14,7 @@ const Sidebar = ({ collapsed, toggle }) => {
   const history = useHistory();
 
   useEffect(() => {
-    const currentRoute = `/${pathname.split("/")[1]}`;
+    const currentRoute = `/${pathname.split("/")[2]}`;
     const getFirstRouteMounted = (menu) => {
       for (let idx = 0; idx < menu.length; idx++) {
         const menuItem = menu[idx];
