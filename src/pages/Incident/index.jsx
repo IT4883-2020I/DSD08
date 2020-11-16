@@ -1,8 +1,9 @@
 import React from "react";
 import { Tabs } from "antd";
-import { UnorderedListOutlined,AppleOutlined, AndroidOutlined } from "@ant-design/icons";
+import { UnorderedListOutlined, AppleOutlined, AndroidOutlined } from "@ant-design/icons";
 import "./style.css"
 import ListIncidents from "../../components/IncidentComponents/ListIncidents"
+import ListReport from "../../components/IncidentComponents/ListReport";
 const { TabPane } = Tabs;
 
 const Incident = () => {
@@ -13,24 +14,44 @@ const Incident = () => {
         <TabPane
           tab={
             <span>
-              <UnorderedListOutlined />
+              {/* <UnorderedListOutlined /> */}
               Danh sách công việc xử lý
             </span>
           }
           key="1"
         >
-          <ListIncidents/>
+          <ListIncidents />
         </TabPane>
         <TabPane
           tab={
             <span>
-              <AndroidOutlined />
-              Tab 2
+              {/* <AndroidOutlined /> */}
+            Danh sách báo cáo kết quả
             </span>
           }
           key="2"
         >
-          Tab 2
+          <ListReport />
+        </TabPane>
+        <TabPane
+          tab={
+            <span>
+              Danh sách yêu cầu hỗ trợ
+            </span>
+          }
+          key="3"
+        >
+          Danh sách yêu cầu hỗ trợ
+        </TabPane>
+        <TabPane
+          tab={
+            <span>
+              Lịch làm việc
+            </span>
+          }
+          key="4"
+        >
+          Lịch làm việc
         </TabPane>
       </Tabs>
     </div>

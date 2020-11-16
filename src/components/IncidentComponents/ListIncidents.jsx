@@ -128,7 +128,7 @@ const ListIncidents = () => {
     },
     {
       title: "Đội trưởng",
-      dataIndex: "captain",
+      dataIndex: "captain_id",
     },
     {
       title: "",
@@ -167,7 +167,7 @@ const ListIncidents = () => {
   };
   return (
     <div>
-      <div class="header" onClick={() => {}}>
+      <div class="header" onClick={() => { }}>
         Danh sách công việc xử lý sự cố
       </div>
       <div>
