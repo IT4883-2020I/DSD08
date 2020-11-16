@@ -37,10 +37,14 @@ const Sidebar = ({ collapsed, toggle }) => {
   }, [pathname, key]);
 
   const handleClickMenu = (menuItem) => {
-    const { key, heading, route } = menuItem;
+    var { key, heading, route } = menuItem;
     if (pathname === route) return;
     setKey(key);
     document.title = heading;
+    console.log(route, pathname);
+    if (route.split("//").length > 0) {
+      route = route.split("//")[1];
+    }
     history.push(route);
   };
 
