@@ -124,7 +124,7 @@ const ListReport = () => {
         },
     ];
 
-    const getListIncidents = () => {
+    const getListReport = () => {
         console.log(process.env.REACT_APP_DOMAIN_API);
     };
 
