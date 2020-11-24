@@ -9,6 +9,7 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
+import URL_API from "./url";
 
 const ListIncidents = () => {
   const [dataIncidents, setDataIncidents] = useState([]);
@@ -27,12 +28,14 @@ const ListIncidents = () => {
   useEffect(() => {
     axios({
       method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/task/listing",
+      url: URL_API + "/task/listing",
       params: { id: typeIncident.id },
     })
       .then(function (response) {
+        console.log(data)
         //handle success
-        setDataIncidents(response.data[0].tasks);
+        // setDataIncidents(response.data[0].tasks);
+        setDataIncidents(response.data.tasks);
       })
       .catch(function (err) {
         //handle error
@@ -169,7 +172,7 @@ const ListIncidents = () => {
   const getInforIncidents = (record) => {
     axios({
       method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/task/detail",
+      url:URL_API + "/task/detail",
       params: { id: record.id },
     })
       .then(function (response) {

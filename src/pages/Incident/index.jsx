@@ -5,6 +5,7 @@ import "./style.css"
 import ListIncidents from "../../components/IncidentComponents/ListIncidents"
 import ListReport from "../../components/IncidentComponents/ListReport";
 import ListSupports from "../../components/IncidentComponents/ListSupports";
+import Schedule from "../../components/IncidentComponents/Schedule";
 const { TabPane } = Tabs;
 
 const Incident = () => {
@@ -42,7 +43,7 @@ const Incident = () => {
           }
           key="3"
         >
-       <ListSupports />
+          <ListSupports />
         </TabPane>
         <TabPane
           tab={
@@ -52,7 +53,7 @@ const Incident = () => {
           }
           key="4"
         >
-          Lịch làm việc
+          <Schedule />
         </TabPane>
       </Tabs>
     </div>
