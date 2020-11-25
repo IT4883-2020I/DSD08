@@ -32,7 +32,7 @@ const ListIncidents = () => {
       params: { id: typeIncident.id },
     })
       .then(function (response) {
-        console.log(data)
+        console.log(response)
         //handle success
         // setDataIncidents(response.data[0].tasks);
         setDataIncidents(response.data.tasks);
