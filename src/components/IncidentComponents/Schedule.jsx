@@ -28,14 +28,14 @@ const Schedule = () => {
     highVoltageGrid: "000000",
   };
   useEffect(() => {
-    console.log(
-      curentDate.getDate(),
-      curentDate.getMonth() + 1,
-      curentDate.getFullYear()
-    );
+    // console.log(
+    //   curentDate.getDate(),
+    //   curentDate.getMonth() + 1,
+    //   curentDate.getFullYear()
+    // );
     axios({
       method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/schedule/detail",
+      url: process.env.REACT_APP_DOMAIN_API + "/schedule/detail-day",
       params: {
         day: curentDate.getDate(),
         month: curentDate.getMonth() + 1,
@@ -43,7 +43,7 @@ const Schedule = () => {
       },
     })
       .then(function (response) {
-        console.log(response);
+        // console.log(response);
         //handle success
         setDataWorking(response.data);
       })
@@ -65,11 +65,11 @@ const Schedule = () => {
   ];
 
   const getListWork = (value, event) => {
-    console.log(value);
+    // console.log(value);
     setCurrentDate(value);
     axios({
       method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/schedule/detail",
+      url: process.env.REACT_APP_DOMAIN_API + "/schedule/detail-day",
       params: {
         day: value.getDate(),
         month: value.getMonth() + 1,
@@ -77,7 +77,7 @@ const Schedule = () => {
       },
     })
       .then(function (response) {
-        console.log(response);
+        // console.log(response);
         //handle success
         setDataWorking(response.data);
       })
