@@ -10,7 +10,7 @@ import {
 import axios from "axios";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import URL_API from "./url";
+// import URL_API from "./url";
 import "../Styles/StyleSchedule.css";
 
 const Schedule = () => {
@@ -35,7 +35,7 @@ const Schedule = () => {
     );
     axios({
       method: "get",
-      url: URL_API + "/schedule/detail",
+      url: process.env.REACT_APP_DOMAIN_API + "/schedule/detail",
       params: {
         day: curentDate.getDate(),
         month: curentDate.getMonth() + 1,
@@ -69,7 +69,7 @@ const Schedule = () => {
     setCurrentDate(value);
     axios({
       method: "get",
-      url: URL_API + "/schedule/detail",
+      url: process.env.REACT_APP_DOMAIN_API + "/schedule/detail",
       params: {
         day: value.getDate(),
         month: value.getMonth() + 1,

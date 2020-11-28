@@ -9,7 +9,7 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
-import URL_API from "./url";
+// import URL_API from "./url";
 
 const ListIncidents = () => {
   const [dataIncidents, setDataIncidents] = useState([]);
@@ -30,7 +30,7 @@ const ListIncidents = () => {
   useEffect(() => {
     axios({
       method: "get",
-      url: URL_API + "/task/listing",
+      url: process.env.REACT_APP_DOMAIN_API + "/task/listing",
       headers: {
         "api-token": API_TOKEN,
         "project-type": CURRENT_TYPE,
@@ -170,17 +170,13 @@ const ListIncidents = () => {
     },
   ];
 
-  const getListIncidents = () => {
-    console.log(process.env.REACT_APP_DOMAIN_API);
-  };
-
   const getInforIncidents = (record) => {
     setDetailIncident(null);
     setVisibleModal(true);
     setLoadingModal(true);
     axios({
       method: "get",
-      url: URL_API + "/task/detail",
+      url: process.env.REACT_APP_DOMAIN_API + "/task/detail",
       headers: {
         "api-token": API_TOKEN,
         "project-type": CURRENT_TYPE,
