@@ -19,7 +19,7 @@ const HomeContent = ({ history }) => {
           <Card
             hoverable
             className='card-content'
-            onClick={() => history.push('/fire/dashboard')}
+            onClick={() => history.push('/dashboard')}
             cover={
               <Image
                 alt='example'
@@ -38,7 +38,7 @@ const HomeContent = ({ history }) => {
           <Card
             hoverable
             className='card-content'
-            onClick={() => history.push('/dike/dashboard')}
+            onClick={() => history.push('/dashboard')}
             cover={
               <Image
                 alt='example'
@@ -57,7 +57,7 @@ const HomeContent = ({ history }) => {
           <Card
             hoverable
             className='card-content'
-            onClick={() => history.push('/highVoltageGrid/dashboard')}
+            onClick={() => history.push('/dashboard')}
             cover={
               <Image
                 alt='example'
@@ -76,7 +76,7 @@ const HomeContent = ({ history }) => {
           <Card
             hoverable
             className='card-content'
-            onClick={() => history.push('/tree/dashboard')}
+            onClick={() => history.push('/dashboard')}
             cover={
               <Image
                 alt='example'

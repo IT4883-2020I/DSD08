@@ -14,7 +14,7 @@ const Sidebar = ({ collapsed, toggle }) => {
   const history = useHistory();
 
   useEffect(() => {
-    const currentRoute = `/${pathname.split("/")[2]}`;
+    const currentRoute = `/${pathname.split("/")[1]}`;
     const getFirstRouteMounted = (menu) => {
       for (let idx = 0; idx < menu.length; idx++) {
         const menuItem = menu[idx];
@@ -37,14 +37,10 @@ const Sidebar = ({ collapsed, toggle }) => {
   }, [pathname, key]);
 
   const handleClickMenu = (menuItem) => {
-    var { key, heading, route } = menuItem;
+    const { key, heading, route } = menuItem;
     if (pathname === route) return;
     setKey(key);
     document.title = heading;
-    console.log(route, pathname);
-    if (route.split("//").length > 0) {
-      route = route.split("//")[1];
-    }
     history.push(route);
   };
 

@@ -18,21 +18,25 @@ const ListIncidents = () => {
   const [visibleModal, setVisibleModal] = useState(false);
   const { pathname } = useLocation();
   const codeIncidents = {
-    fire: { id: "222222", name: "Sự cố  cháy rừng" },
-    dike: { id: "111111", name: "Sự cố  đê điều" },
-    tree: { id: "333333", name: "Sự cố  cây trồng" },
-    highVoltageGrid: { id: "000000", name: "Sự cố lưới điện trên cao" },
+    CHAY_RUNG: { id: "222222", name: "Sự cố  cháy rừng" },
+    DE_DIEU: { id: "111111", name: "Sự cố  đê điều" },
+    CAY_TRONG: { id: "333333", name: "Sự cố  cây trồng" },
+    LUOI_DIEN: { id: "000000", name: "Sự cố lưới điện trên cao" },
   };
-  const currentType = `${pathname.split(/[/,/]+/)[1]}`;
-  const typeIncident = codeIncidents[currentType];
+  const API_TOKEN = "4c901bcdba9f440a2a7c31c0bcbd78ec";
+  const CURRENT_TYPE = "LUOI_DIEN";
+  const typeIncident = codeIncidents[CURRENT_TYPE];
   useEffect(() => {
     axios({
       method: "get",
       url: URL_API + "/task/listing",
-      params: { id: typeIncident.id },
+      headers: {
+        "api-token": API_TOKEN,
+        "project-type": CURRENT_TYPE,
+      },
     })
       .then(function (response) {
-        console.log(response)
+        console.log(response);
         //handle success
         // setDataIncidents(response.data[0].tasks);
         setDataIncidents(response.data.tasks);
@@ -172,7 +176,7 @@ const ListIncidents = () => {
   const getInforIncidents = (record) => {
     axios({
       method: "get",
-      url:URL_API + "/task/detail",
+      url: URL_API + "/task/detail",
       params: { id: record.id },
     })
       .then(function (response) {
@@ -223,9 +227,7 @@ const ListIncidents = () => {
                       avatar={
                         <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
                       }
-                      title={
-                        <a href="https://ant.design">{item.name}</a>
-                      }
+                      title={<a href="https://ant.design">{item.name}</a>}
                       description="Descripttion"
                     />
                   </List.Item>
@@ -243,9 +245,7 @@ const ListIncidents = () => {
                       avatar={
                         <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
                       }
-                      title={
-                        <a href="https://ant.design">{item.name}</a>
-                      }
+                      title={<a href="https://ant.design">{item.name}</a>}
                       description="Descripttion"
                     />
                   </List.Item>
