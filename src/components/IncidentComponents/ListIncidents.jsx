@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../Styles/StyleListIncidents.css";
 import { Table, Modal, Button } from "antd";
 import { Link, useLocation, useHistory } from "react-router-dom";
-import { List, Avatar } from "antd";
+import { List, Avatar, Spin } from "antd";
 import {
   CheckOutlined,
   CloseOutlined,
@@ -15,6 +15,7 @@ const ListIncidents = () => {
   const [dataIncidents, setDataIncidents] = useState([]);
   const [contentModal, setContentModal] = useState(null);
   const [detailIncident, setDetailIncident] = useState(null);
+  const [loadingModal, setLoadingModal] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
   const { pathname } = useLocation();
   const codeIncidents = {
@@ -36,7 +37,7 @@ const ListIncidents = () => {
       },
     })
       .then(function (response) {
-        console.log(response);
+        // console.log(response);
         //handle success
         // setDataIncidents(response.data[0].tasks);
         setDataIncidents(response.data.tasks);
@@ -149,14 +150,14 @@ const ListIncidents = () => {
             //   setVisibleModal(true);
             //   setContentModal("Xác nhận xử lý xong sự cố ?");
             // }}
-            style={{ color: "green", marginLeft: 5 }}
+            style={{ color: "green", marginLeft: 5, display: "none" }}
           />
           <CloseOutlined
             // onClick={() => {
             //   setVisibleModal(true);
             //   setContentModal("Từ chối xử lý sự cố ?");
             // }}
-            style={{ color: "red", marginLeft: 5 }}
+            style={{ color: "red", marginLeft: 5, display: "none" }}
           />
           <InfoCircleOutlined
             onClick={(value) => {
@@ -174,14 +175,21 @@ const ListIncidents = () => {
   };
 
   const getInforIncidents = (record) => {
+    setDetailIncident(null);
+    setVisibleModal(true);
+    setLoadingModal(true);
     axios({
       method: "get",
       url: URL_API + "/task/detail",
+      headers: {
+        "api-token": API_TOKEN,
+        "project-type": CURRENT_TYPE,
+      },
       params: { id: record.id },
     })
       .then(function (response) {
-        setVisibleModal(true);
         setDetailIncident(response.data);
+        setLoadingModal(false);
       })
       .catch(function (err) {
         //handle error
@@ -201,7 +209,12 @@ const ListIncidents = () => {
         Danh sách công việc xử lý sự cố
       </div>
       <div>
-        <Table columns={columns} dataSource={dataIncidents} size="middle" />
+        <Table
+          rowKey={(record) => record.id}
+          columns={columns}
+          dataSource={dataIncidents}
+          size="middle"
+        />
       </div>
       <Modal
         title={null}
@@ -210,50 +223,58 @@ const ListIncidents = () => {
         onCancel={handleCancel}
         footer={null}
       >
-        {detailIncident ? (
+        <Spin spinning={loadingModal} tip="Loading...">
           <div>
             <div className="header">Thông tin chi tiết sự cố</div>
-            <p>Tên sự cố: {detailIncident.task.name}</p>
-            <p>Loại sự cố: {typeIncident.name}</p>
-            <p>Cấp độ: {detailIncident.task.level}</p>
+            {detailIncident ? (
+              <div>
+                <p>Tên sự cố: {detailIncident.task.name}</p>
+                <p>Loại sự cố: {typeIncident.name}</p>
+                <p>Cấp độ: {detailIncident.task.level}</p>
+              </div>
+            ) : null}
             <div className="header">Danh sách nhân viên đang xử lý</div>
             <div>
-              <List
-                itemLayout="horizontal"
-                dataSource={detailIncident.doing_employees}
-                renderItem={(item) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={
-                        <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                      }
-                      title={<a href="https://ant.design">{item.name}</a>}
-                      description="Descripttion"
-                    />
-                  </List.Item>
-                )}
-              />
+              {detailIncident ? (
+                <List
+                  itemLayout="horizontal"
+                  dataSource={detailIncident.doing_employees}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        avatar={
+                          <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+                        }
+                        title={<a href="https://ant.design">{item.name}</a>}
+                        description="Descripttion"
+                      />
+                    </List.Item>
+                  )}
+                />
+              ) : null}
             </div>
             <div className="header">Danh sách nhân viên dự kiến xử lý</div>
             <div>
-              <List
-                itemLayout="horizontal"
-                dataSource={detailIncident.pending_employees}
-                renderItem={(item) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={
-                        <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                      }
-                      title={<a href="https://ant.design">{item.name}</a>}
-                      description="Descripttion"
-                    />
-                  </List.Item>
-                )}
-              />
+              {detailIncident ? (
+                <List
+                  itemLayout="horizontal"
+                  dataSource={detailIncident.pending_employees}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        avatar={
+                          <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+                        }
+                        title={<a href="https://ant.design">{item.name}</a>}
+                        description="Descripttion"
+                      />
+                    </List.Item>
+                  )}
+                />
+              ) : null}
             </div>
           </div>
-        ) : null}
+        </Spin>
       </Modal>
     </div>
   );
