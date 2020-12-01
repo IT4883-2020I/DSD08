@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../Styles/StyleListIncidents.css";
 import { Table, Modal, Button, Input, Space } from "antd";
 import Highlighter from 'react-highlight-words';
@@ -12,10 +12,12 @@ import {
 import axios from "axios";
 import URL_API from "./url";
 
-const ListReport = () => {
+const ListStaff = () => {
   const [dataReport, setDataReport] = useState([]);
   const [contentModal, setContentModal] = useState(null);
+  const [loadingModal, setLoadingModal] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
+  const [detailEmployee, setDetailEmployee] = useState(null);
   const { pathname } = useLocation();
   const codeIncidents = {
     CHAY_RUNG: { id: "222222", name: "Sự cố  cháy rừng" },
@@ -30,13 +32,10 @@ const ListReport = () => {
   const [searchText, setSearchText] = useState()
   const [searchedColumn, setSearchedColumn] = useState()
   
-
-  const [currentImg, setCurrentImg] = useState()
-
   useEffect(() => {
     axios({
       method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/report/listing",
+      url: process.env.REACT_APP_DOMAIN_API + "/employee/listing",
       // url: URL_API + "/report/listing",
       headers: {
         "api-token": API_TOKEN,
@@ -46,7 +45,7 @@ const ListReport = () => {
       .then(function (response) {
         //handle success
         console.log(response)
-        setDataReport(response.data.list);
+        setDataReport(response.data.employees);
       })
       .catch(function (err) {
         //handle error
@@ -118,118 +117,100 @@ const ListReport = () => {
     setSearchText('');
   };
 
-  const data = [
-    {
-      id: 1,
-      employee_id: 100,
-      task_id: 1,
-      content: "Đã xử lý xong sự cố. Xin hãy xác nhận",
-      status: "doing",
-      type: "000000",
-      created_at: null,
-      updated_at: null,
-    },
-    {
-      id: 2,
-      employee_id: 100,
-      task_id: 2,
-      content: "Đã xử lý xong sự cố. Hãy kiểm tra",
-      status: "done",
-      type: "000000",
-      created_at: null,
-      updated_at: null,
-    },
-  ];
 
   const columns = [
     {
-      title: "Tên công việc",
-      dataIndex: "title",
-      ...getColumnSearchProps('title')
-    },
-    {
-      title: "Mã công việc",
-      dataIndex: "task_id",
-      sorter: (a, b) => a.task_id - b.task_id,
+      title: "Mã nhân viên",
+      dataIndex: "employee_id",
+      sorter: (a, b) => a.employee_id - b.employee_id,
       sortDirections: ['descend'],
-      ...getColumnSearchProps('task_id')
+      ...getColumnSearchProps('employee_id')
     },
     {
-      title: "Nội dung xử lý sự cố",
-      dataIndex: "content",
-      ...getColumnSearchProps('content')
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      sorter: (a, b) => a.status.charCodeAt(0) - b.status.charCodeAt(0),
+      title: "Tên nhân viên",
+      dataIndex: "name",
+      sorter: (a, b) => b.name.charCodeAt(0) - a.name.charCodeAt(0),
       sortDirections: ['descend'],
-      render: (text, record) =>
-        record.status == "waiting" ? (
-          <div
-            style={{
-              flexDirection: "row",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                backgroundColor: "red",
-                borderRadius: 5,
-              }}
-            ></div>
-            <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-              {" "}
-              {record.status}
-            </p>
-          </div>
-        ) : record.status == "doing" ? (
-          <div
-            style={{
-              flexDirection: "row",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                backgroundColor: "orange",
-                borderRadius: 5,
-              }}
-            ></div>
-            <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-              {" "}
-              {record.status}
-            </p>
-          </div>
-        ) : (
-              <div
-                style={{
-                  flexDirection: "row",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <div
-                  style={{
-                    width: 10,
-                    height: 10,
-                    backgroundColor: "greenyellow",
-                    borderRadius: 5,
-                  }}
-                ></div>
-                <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-                  {" "}
-                  {"done"}
-                </p>
-              </div>
-            ),
+      ...getColumnSearchProps('name')
     },
+    {
+      title: "Vai trò",
+      dataIndex: "role",
+      sorter: (a, b) => a.role.charCodeAt(0) - b.role.charCodeAt(0),
+      sortDirections: ['descend'],
+      ...getColumnSearchProps('role')
+    },
+    // {
+    //   title: "Trạng thái",
+    //   dataIndex: "status",
+    //   sorter: (a, b) => a.status.charCodeAt(0) - b.status.charCodeAt(0),
+    //   sortDirections: ['descend'],
+    //   render: (text, record) =>
+    //     record.status == "waiting" ? (
+    //       <div
+    //         style={{
+    //           flexDirection: "row",
+    //           display: "flex",
+    //           alignItems: "center",
+    //         }}
+    //       >
+    //         <div
+    //           style={{
+    //             width: 10,
+    //             height: 10,
+    //             backgroundColor: "red",
+    //             borderRadius: 5,
+    //           }}
+    //         ></div>
+    //         <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
+    //           {" "}
+    //           {record.status}
+    //         </p>
+    //       </div>
+    //     ) : record.status == "doing" ? (
+    //       <div
+    //         style={{
+    //           flexDirection: "row",
+    //           display: "flex",
+    //           alignItems: "center",
+    //         }}
+    //       >
+    //         <div
+    //           style={{
+    //             width: 10,
+    //             height: 10,
+    //             backgroundColor: "orange",
+    //             borderRadius: 5,
+    //           }}
+    //         ></div>
+    //         <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
+    //           {" "}
+    //           {record.status}
+    //         </p>
+    //       </div>
+    //     ) : (
+    //       <div
+    //         style={{
+    //           flexDirection: "row",
+    //           display: "flex",
+    //           alignItems: "center",
+    //         }}
+    //       >
+    //         <div
+    //           style={{
+    //             width: 10,
+    //             height: 10,
+    //             backgroundColor: "greenyellow",
+    //             borderRadius: 5,
+    //           }}
+    //         ></div>
+    //         <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
+    //           {" "}
+    //           {"done"}
+    //         </p>
+    //       </div>
+    //     ),
+    // },
     {
       title: "Loại sự cố",
       dataIndex: "type",
@@ -251,40 +232,60 @@ const ListReport = () => {
       sortDirections: ['descend'],
       ...getColumnSearchProps('updated_at')
     },
-    {
-      title: "",
-      key: "operation",
-      render: (record) => (
-        <div>
-          <InfoCircleOutlined
-            onClick={(value) => {
-              getInforReport(record.image);
-            }}
-            style={{ color: "blue", marginLeft: 5 }}
-          />
-        </div>
-      ),
-    },
+    // {
+    //   title: "",
+    //   key: "operation",
+    //   render: (record) => (
+    //     <div>
+    //       <InfoCircleOutlined
+    //         onClick={(value) => {
+    //           getInforEmployee(record.image);
+    //         }}
+    //         style={{ color: "blue", marginLeft: 5 }}
+    //       />
+    //     </div>
+    //   ),
+    // },
   ];
 
-  const getInforReport = (record) => {
-    setCurrentImg(record)
+
+  const getInforEmployee = (record) => {
+    setDetailEmployee(null);
     setVisibleModal(true);
+    setLoadingModal(true);
+    axios({
+      method: "get",
+      url: process.env.REACT_APP_DOMAIN_API + "/employee/detail",
+      headers: {
+        "api-token": API_TOKEN,
+        "project-type": CURRENT_TYPE,
+      },
+      params: { id: record.id },
+    })
+      .then(function (response) {
+        setDetailEmployee(response.data);
+        setLoadingModal(false);
+      })
+      .catch(function (err) {
+        //handle error
+        console.log(err);
+      });
   };
 
+
   const handleOk = () => {
-    setCurrentImg('')
     setVisibleModal(false);
   };
   const handleCancel = () => {
-    setCurrentImg('')
     setVisibleModal(false);
   };
 
+
+
   return (
     <div>
-      <div className="header" onClick={() => { }}>
-        Danh sách báo cáo kết quả xử lý sự cố
+      <div className="header" onClick={() => {}}>
+        Danh sách nhân viên
       </div>
       <div>
         <Table
@@ -294,17 +295,17 @@ const ListReport = () => {
           size="middle"
         />
       </div>
-      <Modal
+      {/* <Modal
         title={null}
         visible={visibleModal}
         onOk={handleOk}
         onCancel={handleCancel}
         footer={null}
       >
-        <img width="100%" height="100%" src={currentImg} />
-      </Modal>
+        Thông tin nhân viên
+      </Modal> */}
     </div>
   );
 };
 
-export default ListReport;
+export default ListStaff;

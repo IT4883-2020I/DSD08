@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../Styles/StyleListIncidents.css";
-import { Table, Modal, Button } from "antd";
+import { Table, Modal, Button, Input, Space } from "antd";
+import Highlighter from 'react-highlight-words';
+import { SearchOutlined } from '@ant-design/icons';
 import { Link, useLocation, useHistory } from "react-router-dom";
 import { List, Avatar, Spin } from "antd";
 import {
@@ -9,6 +11,7 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
+import URL_API from "./url";
 // import URL_API from "./url";
 
 const ListIncidents = () => {
@@ -27,17 +30,23 @@ const ListIncidents = () => {
   const API_TOKEN = "4c901bcdba9f440a2a7c31c0bcbd78ec";
   const CURRENT_TYPE = "LUOI_DIEN";
   const typeIncident = codeIncidents[CURRENT_TYPE];
+
+  const [searchText, setSearchText] = useState()
+  const [searchedColumn, setSearchedColumn] = useState()
+
+
   useEffect(() => {
     axios({
       method: "get",
       url: process.env.REACT_APP_DOMAIN_API + "/task/listing",
+      // url: URL_API + "/report/listing",
       headers: {
         "api-token": API_TOKEN,
         "project-type": CURRENT_TYPE,
       },
     })
       .then(function (response) {
-        // console.log(response);
+        console.log(response);
         //handle success
         // setDataIncidents(response.data[0].tasks);
         setDataIncidents(response.data.tasks);
@@ -47,6 +56,72 @@ const ListIncidents = () => {
         console.log(err);
       });
   }, []);
+
+
+  const getColumnSearchProps = dataIndex => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          // ref={node => {
+          //   this.searchInput = node;
+          // }}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ width: 188, marginBottom: 8, display: 'block' }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
+        : '',
+    // onFilterDropdownVisibleChange: visible => {
+    //   if (visible) {
+    //     setTimeout(() => this.searchInput.select(), 100);
+    //   }
+    // },
+    render: text =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+          text
+        ),
+  });
+
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0])
+    setSearchedColumn(dataIndex)
+  };
+
+  const handleReset = clearFilters => {
+    clearFilters();
+    setSearchText('');
+  };
+
 
   const data = [
     {
@@ -127,18 +202,30 @@ const ListIncidents = () => {
     {
       title: "Tên sự cố",
       dataIndex: "name",
+      sorter: (a, b) => b.name.charCodeAt(0) - a.name.charCodeAt(0),
+      sortDirections: ['descend'],
+      ...getColumnSearchProps('name')
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
+      sorter: (a, b) => a.status.charCodeAt(0) - b.status.charCodeAt(0),
+      sortDirections: ['descend'],
+      ...getColumnSearchProps('status')
     },
     {
       title: "Mức độ",
       dataIndex: "level",
+      sorter: (a, b) => a.level.charCodeAt(0) - b.level.charCodeAt(0),
+      sortDirections: ['descend'],
+      ...getColumnSearchProps('level')
     },
     {
       title: "Đội trưởng",
       dataIndex: "captain_id",
+      sorter: (a, b) => a.captain_id - b.captain_id,
+      sortDirections: ['descend'],
+      ...getColumnSearchProps('captain_id')
     },
     {
       title: "",
@@ -201,7 +288,7 @@ const ListIncidents = () => {
   };
   return (
     <div>
-      <div className="header" onClick={() => {}}>
+      <div className="header" onClick={() => { }}>
         Danh sách công việc xử lý sự cố
       </div>
       <div>

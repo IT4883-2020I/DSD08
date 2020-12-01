@@ -6,6 +6,7 @@ import ListIncidents from "../../components/IncidentComponents/ListIncidents"
 import ListReport from "../../components/IncidentComponents/ListReport";
 import ListSupports from "../../components/IncidentComponents/ListSupports";
 import Schedule from "../../components/IncidentComponents/Schedule";
+import ListStaff from "../../components/IncidentComponents/ListStaff";
 const { TabPane } = Tabs;
 
 const Incident = () => {
@@ -54,6 +55,16 @@ const Incident = () => {
           key="4"
         >
           <Schedule />
+        </TabPane>
+        <TabPane
+          tab={
+            <span>
+              Danh sách nhân viên
+            </span>
+          }
+          key="5"
+        >
+          <ListStaff />
         </TabPane>
       </Tabs>
     </div>
