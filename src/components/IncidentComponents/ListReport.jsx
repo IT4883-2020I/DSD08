@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../Styles/StyleListIncidents.css";
-import { Table, Modal, Button, Input, Space } from "antd";
-import Highlighter from 'react-highlight-words';
-import { SearchOutlined } from '@ant-design/icons';
+import { Table, Modal, Button, Input, Space, Spin } from "antd";
+import Highlighter from "react-highlight-words";
+import { SearchOutlined } from "@ant-design/icons";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import {
   CheckOutlined,
@@ -16,6 +16,7 @@ const ListReport = () => {
   const [dataReport, setDataReport] = useState([]);
   const [contentModal, setContentModal] = useState(null);
   const [visibleModal, setVisibleModal] = useState(false);
+  const [loadingTable, setLoadingTable] = useState(true);
   const { pathname } = useLocation();
   const codeIncidents = {
     CHAY_RUNG: { id: "222222", name: "Sự cố  cháy rừng" },
@@ -27,11 +28,10 @@ const ListReport = () => {
   const CURRENT_TYPE = "LUOI_DIEN";
   const typeIncident = codeIncidents[CURRENT_TYPE];
 
-  const [searchText, setSearchText] = useState()
-  const [searchedColumn, setSearchedColumn] = useState()
-  
+  const [searchText, setSearchText] = useState();
+  const [searchedColumn, setSearchedColumn] = useState();
 
-  const [currentImg, setCurrentImg] = useState()
+  const [currentImg, setCurrentImg] = useState();
 
   useEffect(() => {
     axios({
@@ -45,7 +45,8 @@ const ListReport = () => {
     })
       .then(function (response) {
         //handle success
-        console.log(response)
+        console.log(response);
+        setLoadingTable(false);
         setDataReport(response.data.list);
       })
       .catch(function (err) {
@@ -54,8 +55,13 @@ const ListReport = () => {
       });
   }, []);
 
-  const getColumnSearchProps = dataIndex => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
       <div style={{ padding: 8 }}>
         <Input
           // ref={node => {
@@ -63,9 +69,11 @@ const ListReport = () => {
           // }}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: 'block' }}
+          style={{ width: 188, marginBottom: 8, display: "block" }}
         />
         <Space>
           <Button
@@ -77,45 +85,53 @@ const ListReport = () => {
           >
             Search
           </Button>
-          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
             Reset
           </Button>
         </Space>
       </div>
     ),
-    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
     onFilter: (value, record) =>
       record[dataIndex]
-        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
-        : '',
+        ? record[dataIndex]
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
+        : "",
     // onFilterDropdownVisibleChange: visible => {
     //   if (visible) {
     //     setTimeout(() => this.searchInput.select(), 100);
     //   }
     // },
-    render: text =>
+    render: (text) =>
       searchedColumn === dataIndex ? (
         <Highlighter
-          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
           searchWords={[searchText]}
           autoEscape
-          textToHighlight={text ? text.toString() : ''}
+          textToHighlight={text ? text.toString() : ""}
         />
       ) : (
-          text
-        ),
+        text
+      ),
   });
-
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
-    setSearchText(selectedKeys[0])
-    setSearchedColumn(dataIndex)
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
   };
 
-  const handleReset = clearFilters => {
+  const handleReset = (clearFilters) => {
     clearFilters();
-    setSearchText('');
+    setSearchText("");
   };
 
   const data = [
@@ -145,25 +161,25 @@ const ListReport = () => {
     {
       title: "Tên công việc",
       dataIndex: "title",
-      ...getColumnSearchProps('title')
+      ...getColumnSearchProps("title"),
     },
     {
       title: "Mã công việc",
       dataIndex: "task_id",
       sorter: (a, b) => a.task_id - b.task_id,
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('task_id')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("task_id"),
     },
     {
       title: "Nội dung xử lý sự cố",
       dataIndex: "content",
-      ...getColumnSearchProps('content')
+      ...getColumnSearchProps("content"),
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       sorter: (a, b) => a.status.charCodeAt(0) - b.status.charCodeAt(0),
-      sortDirections: ['descend'],
+      sortDirections: ["descend"],
       render: (text, record) =>
         record.status == "waiting" ? (
           <div
@@ -208,48 +224,48 @@ const ListReport = () => {
             </p>
           </div>
         ) : (
-              <div
-                style={{
-                  flexDirection: "row",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <div
-                  style={{
-                    width: 10,
-                    height: 10,
-                    backgroundColor: "greenyellow",
-                    borderRadius: 5,
-                  }}
-                ></div>
-                <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-                  {" "}
-                  {"done"}
-                </p>
-              </div>
-            ),
+          <div
+            style={{
+              flexDirection: "row",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                backgroundColor: "greenyellow",
+                borderRadius: 5,
+              }}
+            ></div>
+            <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
+              {" "}
+              {"done"}
+            </p>
+          </div>
+        ),
     },
     {
       title: "Loại sự cố",
       dataIndex: "type",
       render: (text, record) => <p>{codeIncidents[record.type].name}</p>,
       sorter: (a, b) => a.type.charCodeAt(0) - b.type.charCodeAt(0),
-      sortDirections: ['descend'],
+      sortDirections: ["descend"],
     },
     {
       title: "Khởi tạo",
       dataIndex: "created_at",
       sorter: (a, b) => a.created_at.charCodeAt(0) - b.created_at.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('created_at')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("created_at"),
     },
     {
       title: "Cập nhật lần cuối",
       dataIndex: "updated_at",
       sorter: (a, b) => a.updated_at.charCodeAt(0) - b.updated_at.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('updated_at')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("updated_at"),
     },
     {
       title: "",
@@ -268,31 +284,33 @@ const ListReport = () => {
   ];
 
   const getInforReport = (record) => {
-    setCurrentImg(record)
+    setCurrentImg(record);
     setVisibleModal(true);
   };
 
   const handleOk = () => {
-    setCurrentImg('')
+    setCurrentImg("");
     setVisibleModal(false);
   };
   const handleCancel = () => {
-    setCurrentImg('')
+    setCurrentImg("");
     setVisibleModal(false);
   };
 
   return (
     <div>
-      <div className="header" onClick={() => { }}>
+      <div className="header" onClick={() => {}}>
         Danh sách báo cáo kết quả xử lý sự cố
       </div>
       <div>
-        <Table
-          rowKey={(record) => record.id}
-          columns={columns}
-          dataSource={dataReport}
-          size="middle"
-        />
+        <Spin spinning={loadingTable} tip="Loading...">
+          <Table
+            rowKey={(record) => record.id}
+            columns={columns}
+            dataSource={dataReport}
+            size="middle"
+          />
+        </Spin>
       </div>
       <Modal
         title={null}

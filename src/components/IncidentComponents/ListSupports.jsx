@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../Styles/StyleListIncidents.css";
-import { Table, Modal, Button, Input, Space } from "antd";
-import Highlighter from 'react-highlight-words';
-import { SearchOutlined } from '@ant-design/icons';
+import { Table, Modal, Button, Input, Space, Spin } from "antd";
+import Highlighter from "react-highlight-words";
+import { SearchOutlined } from "@ant-design/icons";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import {
   CheckOutlined,
@@ -15,6 +15,7 @@ import URL_API from "./url";
 const ListSupports = () => {
   const [dataSupports, setDataSupports] = useState([]);
   const [contentModal, setContentModal] = useState(null);
+  const [loadingTable, setLoadingTable] = useState(true);
   const [visibleModal, setVisibleModal] = useState(false);
   const { pathname } = useLocation();
   const codeIncidents = {
@@ -27,10 +28,10 @@ const ListSupports = () => {
   const CURRENT_TYPE = "LUOI_DIEN";
   const typeIncident = codeIncidents[CURRENT_TYPE];
 
-  const [searchText, setSearchText] = useState()
-  const [searchedColumn, setSearchedColumn] = useState()
+  const [searchText, setSearchText] = useState();
+  const [searchedColumn, setSearchedColumn] = useState();
 
-  const [currentImg, setCurrentImg] = useState()
+  const [currentImg, setCurrentImg] = useState();
 
   useEffect(() => {
     axios({
@@ -44,7 +45,8 @@ const ListSupports = () => {
     })
       .then(function (response) {
         //handle success
-        console.log(response)
+        console.log(response);
+        setLoadingTable(false);
         setDataSupports(response.data.list);
       })
       .catch(function (err) {
@@ -53,8 +55,13 @@ const ListSupports = () => {
       });
   }, []);
 
-  const getColumnSearchProps = dataIndex => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
       <div style={{ padding: 8 }}>
         <Input
           // ref={node => {
@@ -62,9 +69,11 @@ const ListSupports = () => {
           // }}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: 'block' }}
+          style={{ width: 188, marginBottom: 8, display: "block" }}
         />
         <Space>
           <Button
@@ -76,45 +85,53 @@ const ListSupports = () => {
           >
             Search
           </Button>
-          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
             Reset
           </Button>
         </Space>
       </div>
     ),
-    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
     onFilter: (value, record) =>
       record[dataIndex]
-        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
-        : '',
+        ? record[dataIndex]
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
+        : "",
     // onFilterDropdownVisibleChange: visible => {
     //   if (visible) {
     //     setTimeout(() => this.searchInput.select(), 100);
     //   }
     // },
-    render: text =>
+    render: (text) =>
       searchedColumn === dataIndex ? (
         <Highlighter
-          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
           searchWords={[searchText]}
           autoEscape
-          textToHighlight={text ? text.toString() : ''}
+          textToHighlight={text ? text.toString() : ""}
         />
       ) : (
-          text
-        ),
+        text
+      ),
   });
-
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
-    setSearchText(selectedKeys[0])
-    setSearchedColumn(dataIndex)
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
   };
 
-  const handleReset = clearFilters => {
+  const handleReset = (clearFilters) => {
     clearFilters();
-    setSearchText('');
+    setSearchText("");
   };
 
   const data = [
@@ -135,27 +152,27 @@ const ListSupports = () => {
       title: "Mã nhân viên",
       dataIndex: "employee_id",
       sorter: (a, b) => a.employee_id - b.employee_id,
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('employee_id')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("employee_id"),
     },
     {
       title: "Mã sự cố",
       dataIndex: "incident_id",
       sorter: (a, b) => a.incident_id - b.incident_id,
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('incident_id')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("incident_id"),
     },
     {
       title: "Nội dung xử lý sự cố",
       dataIndex: "content",
-      ...getColumnSearchProps('content')
+      ...getColumnSearchProps("content"),
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       sorter: (a, b) => a.status.charCodeAt(0) - b.status.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('status'),
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("status"),
       render: (text, record) =>
         record.status == "waiting" ? (
           <div
@@ -227,21 +244,21 @@ const ListSupports = () => {
       dataIndex: "type",
       render: (text, record) => <p>{codeIncidents[record.type].name}</p>,
       sorter: (a, b) => a.type.charCodeAt(0) - b.type.charCodeAt(0),
-      sortDirections: ['descend'],
+      sortDirections: ["descend"],
     },
     {
       title: "Khởi tạo",
       dataIndex: "created_at",
       sorter: (a, b) => a.created_at.charCodeAt(0) - b.created_at.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('created_at')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("created_at"),
     },
     {
       title: "Cập nhật lần cuối",
       dataIndex: "updated_at",
       sorter: (a, b) => a.updated_at.charCodeAt(0) - b.updated_at.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('updated_at')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("updated_at"),
     },
     {
       title: "",
@@ -260,16 +277,16 @@ const ListSupports = () => {
   ];
 
   const getInforSupport = (record) => {
-    setCurrentImg(record)
+    setCurrentImg(record);
     setVisibleModal(true);
   };
 
   const handleOk = () => {
-    setCurrentImg('')
+    setCurrentImg("");
     setVisibleModal(false);
   };
   const handleCancel = () => {
-    setCurrentImg('')
+    setCurrentImg("");
     setVisibleModal(false);
   };
 
@@ -279,12 +296,14 @@ const ListSupports = () => {
         Danh sách yêu cầu giúp đỡ
       </div>
       <div>
-        <Table
-          rowKey={(record) => record.id}
-          columns={columns}
-          dataSource={dataSupports}
-          size="middle"
-        />
+        <Spin spinning={loadingTable} tip="Loading...">
+          <Table
+            rowKey={(record) => record.id}
+            columns={columns}
+            dataSource={dataSupports}
+            size="middle"
+          />
+        </Spin>
       </div>
       <Modal
         title={null}

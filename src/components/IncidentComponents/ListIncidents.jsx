@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../Styles/StyleListIncidents.css";
 import { Table, Modal, Button, Input, Space } from "antd";
-import Highlighter from 'react-highlight-words';
-import { SearchOutlined } from '@ant-design/icons';
+import Highlighter from "react-highlight-words";
+import { SearchOutlined } from "@ant-design/icons";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import { List, Avatar, Spin } from "antd";
 import {
@@ -19,7 +19,9 @@ const ListIncidents = () => {
   const [contentModal, setContentModal] = useState(null);
   const [detailIncident, setDetailIncident] = useState(null);
   const [loadingModal, setLoadingModal] = useState(false);
+  const [loadingTable, setLoadingTable] = useState(true);
   const [visibleModal, setVisibleModal] = useState(false);
+
   const { pathname } = useLocation();
   const codeIncidents = {
     CHAY_RUNG: { id: "222222", name: "Sự cố  cháy rừng" },
@@ -31,9 +33,8 @@ const ListIncidents = () => {
   const CURRENT_TYPE = "LUOI_DIEN";
   const typeIncident = codeIncidents[CURRENT_TYPE];
 
-  const [searchText, setSearchText] = useState()
-  const [searchedColumn, setSearchedColumn] = useState()
-
+  const [searchText, setSearchText] = useState();
+  const [searchedColumn, setSearchedColumn] = useState();
 
   useEffect(() => {
     axios({
@@ -46,10 +47,11 @@ const ListIncidents = () => {
       },
     })
       .then(function (response) {
-        console.log(response);
+        // console.log(response);
         //handle success
         // setDataIncidents(response.data[0].tasks);
         setDataIncidents(response.data.tasks);
+        setLoadingTable(false);
       })
       .catch(function (err) {
         //handle error
@@ -57,9 +59,13 @@ const ListIncidents = () => {
       });
   }, []);
 
-
-  const getColumnSearchProps = dataIndex => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
       <div style={{ padding: 8 }}>
         <Input
           // ref={node => {
@@ -67,9 +73,11 @@ const ListIncidents = () => {
           // }}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: 'block' }}
+          style={{ width: 188, marginBottom: 8, display: "block" }}
         />
         <Space>
           <Button
@@ -81,47 +89,54 @@ const ListIncidents = () => {
           >
             Search
           </Button>
-          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
             Reset
           </Button>
         </Space>
       </div>
     ),
-    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
     onFilter: (value, record) =>
       record[dataIndex]
-        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
-        : '',
+        ? record[dataIndex]
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
+        : "",
     // onFilterDropdownVisibleChange: visible => {
     //   if (visible) {
     //     setTimeout(() => this.searchInput.select(), 100);
     //   }
     // },
-    render: text =>
+    render: (text) =>
       searchedColumn === dataIndex ? (
         <Highlighter
-          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
           searchWords={[searchText]}
           autoEscape
-          textToHighlight={text ? text.toString() : ''}
+          textToHighlight={text ? text.toString() : ""}
         />
       ) : (
-          text
-        ),
+        text
+      ),
   });
-
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
-    setSearchText(selectedKeys[0])
-    setSearchedColumn(dataIndex)
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
   };
 
-  const handleReset = clearFilters => {
+  const handleReset = (clearFilters) => {
     clearFilters();
-    setSearchText('');
+    setSearchText("");
   };
-
 
   const data = [
     {
@@ -203,29 +218,29 @@ const ListIncidents = () => {
       title: "Tên sự cố",
       dataIndex: "name",
       sorter: (a, b) => b.name.charCodeAt(0) - a.name.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('name')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("name"),
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       sorter: (a, b) => a.status.charCodeAt(0) - b.status.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('status')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("status"),
     },
     {
       title: "Mức độ",
       dataIndex: "level",
       sorter: (a, b) => a.level.charCodeAt(0) - b.level.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('level')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("level"),
     },
     {
       title: "Đội trưởng",
       dataIndex: "captain_id",
       sorter: (a, b) => a.captain_id - b.captain_id,
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('captain_id')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("captain_id"),
     },
     {
       title: "",
@@ -288,16 +303,18 @@ const ListIncidents = () => {
   };
   return (
     <div>
-      <div className="header" onClick={() => { }}>
+      <div className="header" onClick={() => {}}>
         Danh sách công việc xử lý sự cố
       </div>
       <div>
-        <Table
-          rowKey={(record) => record.id}
-          columns={columns}
-          dataSource={dataIncidents}
-          size="middle"
-        />
+        <Spin spinning={loadingTable} tip="Loading...">
+          <Table
+            rowKey={(record) => record.id}
+            columns={columns}
+            dataSource={dataIncidents}
+            size="middle"
+          />
+        </Spin>
       </div>
       <Modal
         title={null}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../Styles/StyleListIncidents.css";
-import { Table, Modal, Button, Input, Space } from "antd";
+import { Table, Modal, Button, Input, Space, Spin } from "antd";
 import Highlighter from 'react-highlight-words';
 import { SearchOutlined } from '@ant-design/icons';
 import { Link, useLocation, useHistory } from "react-router-dom";
@@ -18,6 +18,7 @@ const ListStaff = () => {
   const [loadingModal, setLoadingModal] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
   const [detailEmployee, setDetailEmployee] = useState(null);
+  const [loadingTable, setLoadingTable] = useState(true);
   const { pathname } = useLocation();
   const codeIncidents = {
     CHAY_RUNG: { id: "222222", name: "Sự cố  cháy rừng" },
@@ -45,6 +46,7 @@ const ListStaff = () => {
       .then(function (response) {
         //handle success
         console.log(response)
+        setLoadingTable(false)
         setDataReport(response.data.employees);
       })
       .catch(function (err) {
@@ -288,12 +290,14 @@ const ListStaff = () => {
         Danh sách nhân viên
       </div>
       <div>
+      <Spin spinning={loadingTable} tip="Loading...">
         <Table
           rowKey={(record) => record.id}
           columns={columns}
           dataSource={dataReport}
           size="middle"
         />
+        </Spin>
       </div>
       {/* <Modal
         title={null}

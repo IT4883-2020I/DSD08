@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../Styles/StyleListIncidents.css";
-import { Table, Modal, Button, Input, Space } from "antd";
-import Highlighter from 'react-highlight-words';
-import { SearchOutlined } from '@ant-design/icons';
+import { Table, Modal, Button, Input, Space, Spin } from "antd";
+import Highlighter from "react-highlight-words";
+import { SearchOutlined } from "@ant-design/icons";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import {
   CheckOutlined,
@@ -20,7 +20,7 @@ const Schedule = () => {
   const [dataWorkings, setDataWorking] = useState([]);
   const [dataPresent, setDataPresent] = useState([]);
   const [value, onChange] = useState(new Date());
-
+  const [loadingTable, setLoadingTable] = useState(true);
   const [inputManv, setInputManv] = useState([]);
   const [inputTennv, setInputTennv] = useState([]);
   // const [day, setDay] = useState(0);
@@ -28,9 +28,8 @@ const Schedule = () => {
   // const [year, setYear] = useState(0);
   const [curentDate, setCurrentDate] = useState(new Date());
 
-  const [searchText, setSearchText] = useState()
-  const [searchedColumn, setSearchedColumn] = useState()
-
+  const [searchText, setSearchText] = useState();
+  const [searchedColumn, setSearchedColumn] = useState();
 
   const { pathname } = useLocation();
   const codeIncidents = {
@@ -60,6 +59,7 @@ const Schedule = () => {
         //handle success
         setDataWorking(response.data);
         setDataPresent(response.data);
+        setLoadingTable(false);
       })
       .catch(function (err) {
         //handle error
@@ -67,9 +67,13 @@ const Schedule = () => {
       });
   }, []);
 
-
-  const getColumnSearchProps = dataIndex => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
       <div style={{ padding: 8 }}>
         <Input
           // ref={node => {
@@ -77,9 +81,11 @@ const Schedule = () => {
           // }}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: 'block' }}
+          style={{ width: 188, marginBottom: 8, display: "block" }}
         />
         <Space>
           <Button
@@ -91,45 +97,53 @@ const Schedule = () => {
           >
             Search
           </Button>
-          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
             Reset
           </Button>
         </Space>
       </div>
     ),
-    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
     onFilter: (value, record) =>
       record[dataIndex]
-        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
-        : '',
+        ? record[dataIndex]
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
+        : "",
     // onFilterDropdownVisibleChange: visible => {
     //   if (visible) {
     //     setTimeout(() => this.searchInput.select(), 100);
     //   }
     // },
-    render: text =>
+    render: (text) =>
       searchedColumn === dataIndex ? (
         <Highlighter
-          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
           searchWords={[searchText]}
           autoEscape
-          textToHighlight={text ? text.toString() : ''}
+          textToHighlight={text ? text.toString() : ""}
         />
       ) : (
-          text
-        ),
+        text
+      ),
   });
-
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
-    setSearchText(selectedKeys[0])
-    setSearchedColumn(dataIndex)
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
   };
 
-  const handleReset = clearFilters => {
+  const handleReset = (clearFilters) => {
     clearFilters();
-    setSearchText('');
+    setSearchText("");
   };
 
   const columns = [
@@ -137,27 +151,23 @@ const Schedule = () => {
       title: "Mã nhân viên",
       dataIndex: "employee_id",
       sorter: (a, b) => a.employee_id - b.employee_id,
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('employee_id')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("employee_id"),
     },
     {
       title: "Tên nhân viên",
       dataIndex: "name",
       sorter: (a, b) => b.name.charCodeAt(0) - a.name.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('name')
+      sortDirections: ["descend"],
+      ...getColumnSearchProps("name"),
     },
   ];
 
-  
-
-
-
-
   const getListWork = (value, event) => {
     // console.log(value);
-    setInputManv('')
-    setInputTennv('')
+    setLoadingTable(true);
+    setInputManv("");
+    setInputTennv("");
     setCurrentDate(value);
     axios({
       method: "get",
@@ -173,6 +183,7 @@ const Schedule = () => {
         //handle success
         setDataWorking(response.data);
         setDataPresent(response.data);
+        setLoadingTable(false);
       })
       .catch(function (err) {
         //handle error
@@ -194,7 +205,6 @@ const Schedule = () => {
   //   setDataPresent(datafilter)
   // }
 
-
   return (
     <div class="flex-container">
       <div class="flex-item-left">
@@ -215,12 +225,15 @@ const Schedule = () => {
             <Input placeholder="Nhập tên nhân viên" value={inputTennv} onChange={(e) => filterTenNhanVien(e.target.value)} />
           </div>
         </div> */}
-        <div class="header" onClick={() => { }}>
-          {`Lịch làm việc ngày ${curentDate.getDate()} tháng ${curentDate.getMonth() + 1
-            } năm ${curentDate.getFullYear()}`}
+        <div class="header" onClick={() => {}}>
+          {`Lịch làm việc ngày ${curentDate.getDate()} tháng ${
+            curentDate.getMonth() + 1
+          } năm ${curentDate.getFullYear()}`}
         </div>
         <div>
-          <Table columns={columns} dataSource={dataWorkings} size="small" />
+          <Spin spinning={loadingTable} tip="Loading...">
+            <Table columns={columns} dataSource={dataWorkings} size="small" />
+          </Spin>
         </div>
         {/* <Modal
                 title={null}
