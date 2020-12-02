@@ -32,7 +32,7 @@ const ListStaff = () => {
 
   const [searchText, setSearchText] = useState()
   const [searchedColumn, setSearchedColumn] = useState()
-  
+
   useEffect(() => {
     axios({
       method: "get",
@@ -124,7 +124,7 @@ const ListStaff = () => {
     {
       title: "Mã nhân viên",
       dataIndex: "employee_id",
-      sorter: (a, b) => a.employee_id - b.employee_id,
+      sorter: (a, b) => b.employee_id - a.employee_id,
       sortDirections: ['descend'],
       ...getColumnSearchProps('employee_id')
     },
@@ -138,7 +138,7 @@ const ListStaff = () => {
     {
       title: "Vai trò",
       dataIndex: "role",
-      sorter: (a, b) => a.role.charCodeAt(0) - b.role.charCodeAt(0),
+      sorter: (a, b) => b.role.charCodeAt(0) - a.role.charCodeAt(0),
       sortDirections: ['descend'],
       ...getColumnSearchProps('role')
     },
@@ -217,68 +217,52 @@ const ListStaff = () => {
       title: "Loại sự cố",
       dataIndex: "type",
       render: (text, record) => <p>{codeIncidents[record.type].name}</p>,
-      sorter: (a, b) => a.type.charCodeAt(0) - b.type.charCodeAt(0),
+      sorter: (a, b) => b.type.charCodeAt(0) - a.type.charCodeAt(0),
       sortDirections: ['descend'],
     },
     {
       title: "Khởi tạo",
       dataIndex: "created_at",
-      sorter: (a, b) => a.created_at.charCodeAt(0) - b.created_at.charCodeAt(0),
+      sorter: (a, b) => b.created_at.charCodeAt(0) - a.created_at.charCodeAt(0),
       sortDirections: ['descend'],
       ...getColumnSearchProps('created_at')
     },
     {
       title: "Cập nhật lần cuối",
       dataIndex: "updated_at",
-      sorter: (a, b) => a.updated_at.charCodeAt(0) - b.updated_at.charCodeAt(0),
+      sorter: (a, b) => b.updated_at.charCodeAt(0) - a.updated_at.charCodeAt(0),
       sortDirections: ['descend'],
       ...getColumnSearchProps('updated_at')
     },
-    // {
-    //   title: "",
-    //   key: "operation",
-    //   render: (record) => (
-    //     <div>
-    //       <InfoCircleOutlined
-    //         onClick={(value) => {
-    //           getInforEmployee(record.image);
-    //         }}
-    //         style={{ color: "blue", marginLeft: 5 }}
-    //       />
-    //     </div>
-    //   ),
-    // },
+    {
+      title: "",
+      key: "operation",
+      render: (record) => (
+        <div>
+          <InfoCircleOutlined
+            onClick={(value) => {
+              getInforEmployee(record);
+            }}
+            style={{ color: "blue", marginLeft: 5 }}
+          />
+        </div>
+      ),
+    },
   ];
 
 
   const getInforEmployee = (record) => {
-    setDetailEmployee(null);
+    setDetailEmployee(record);
     setVisibleModal(true);
-    setLoadingModal(true);
-    axios({
-      method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/employee/detail",
-      headers: {
-        "api-token": API_TOKEN,
-        "project-type": CURRENT_TYPE,
-      },
-      params: { id: record.id },
-    })
-      .then(function (response) {
-        setDetailEmployee(response.data);
-        setLoadingModal(false);
-      })
-      .catch(function (err) {
-        //handle error
-        console.log(err);
-      });
   };
 
 
   const handleOk = () => {
+    setDetailEmployee({});
     setVisibleModal(false);
   };
   const handleCancel = () => {
+    setDetailEmployee({})
     setVisibleModal(false);
   };
 
@@ -286,28 +270,45 @@ const ListStaff = () => {
 
   return (
     <div>
-      <div className="header" onClick={() => {}}>
+      <div className="header" onClick={() => { }}>
         Danh sách nhân viên
       </div>
       <div>
-      <Spin spinning={loadingTable} tip="Loading...">
-        <Table
-          rowKey={(record) => record.id}
-          columns={columns}
-          dataSource={dataReport}
-          size="middle"
-        />
+        <Spin spinning={loadingTable} tip="Loading...">
+          <Table
+            rowKey={(record) => record.id}
+            columns={columns}
+            dataSource={dataReport}
+            size="middle"
+          />
         </Spin>
       </div>
-      {/* <Modal
-        title={null}
+      <Modal
+        title={`Thông tin nhân viên: ${detailEmployee ? detailEmployee.name : ""}`}
         visible={visibleModal}
         onOk={handleOk}
         onCancel={handleCancel}
         footer={null}
       >
-        Thông tin nhân viên
-      </Modal> */}
+        <Spin spinning={loadingModal} tip="Loading...">
+          {detailEmployee ? (
+            <div style={{ displayL: 'flex', flexWrap: 'wrap' }}>
+              <div style={{ flex: '75%' }}>
+                <div>
+                  <p>Mã nhân viên: {detailEmployee.id}</p>
+                  <p>Vai trò: {detailEmployee.role}</p>
+                  <p>Loại sự cố: {detailEmployee.type}</p>
+                  <p>Khởi tạo: {detailEmployee.created_at}</p>
+                  <p>Cập nhật lần cuối: {detailEmployee.updated_at}</p>
+                </div>
+              </div>
+              <div style={{ flex: '75%' }}>
+                <img src={'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png'} width={'100%'} height={'100%'} />
+              </div>
+            </div>
+          ) : null}
+        </Spin>
+      </Modal>
     </div>
   );
 };

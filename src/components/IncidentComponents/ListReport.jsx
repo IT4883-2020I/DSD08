@@ -166,7 +166,7 @@ const ListReport = () => {
     {
       title: "Mã công việc",
       dataIndex: "task_id",
-      sorter: (a, b) => a.task_id - b.task_id,
+      sorter: (a, b) => b.task_id - a.task_id,
       sortDirections: ["descend"],
       ...getColumnSearchProps("task_id"),
     },
@@ -178,7 +178,7 @@ const ListReport = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
-      sorter: (a, b) => a.status.charCodeAt(0) - b.status.charCodeAt(0),
+      sorter: (a, b) => b.status.charCodeAt(0) - a.status.charCodeAt(0),
       sortDirections: ["descend"],
       render: (text, record) =>
         record.status == "waiting" ? (
@@ -250,20 +250,20 @@ const ListReport = () => {
       title: "Loại sự cố",
       dataIndex: "type",
       render: (text, record) => <p>{codeIncidents[record.type].name}</p>,
-      sorter: (a, b) => a.type.charCodeAt(0) - b.type.charCodeAt(0),
+      sorter: (a, b) => b.type.charCodeAt(0) - a.type.charCodeAt(0),
       sortDirections: ["descend"],
     },
     {
       title: "Khởi tạo",
       dataIndex: "created_at",
-      sorter: (a, b) => a.created_at.charCodeAt(0) - b.created_at.charCodeAt(0),
+      sorter: (a, b) => b.created_at.charCodeAt(0) - a.created_at.charCodeAt(0),
       sortDirections: ["descend"],
       ...getColumnSearchProps("created_at"),
     },
     {
       title: "Cập nhật lần cuối",
       dataIndex: "updated_at",
-      sorter: (a, b) => a.updated_at.charCodeAt(0) - b.updated_at.charCodeAt(0),
+      sorter: (a, b) => b.updated_at.charCodeAt(0) - a.updated_at.charCodeAt(0),
       sortDirections: ["descend"],
       ...getColumnSearchProps("updated_at"),
     },
