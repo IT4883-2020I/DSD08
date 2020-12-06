@@ -4,18 +4,27 @@ import { Table, Modal, Button, Input, Space } from "antd";
 import Highlighter from "react-highlight-words";
 import { SearchOutlined } from "@ant-design/icons";
 import { Link, useLocation, useHistory } from "react-router-dom";
-import { List, Avatar, Spin } from "antd";
+import { List, Avatar, Spin, Badge, Menu, Dropdown } from "antd";
 import {
   CheckOutlined,
   CloseOutlined,
   InfoCircleOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import URL_API from "./url";
 // import URL_API from "./url";
 
+const menu = (
+  <Menu>
+    <Menu.Item>Action 1</Menu.Item>
+    <Menu.Item>Action 2</Menu.Item>
+  </Menu>
+);
+
 const ListIncidents = () => {
   const [dataIncidents, setDataIncidents] = useState([]);
+  const [filterTable, setFilterTable] = useState(null);
   const [contentModal, setContentModal] = useState(null);
   const [detailIncident, setDetailIncident] = useState(null);
   const [loadingModal, setLoadingModal] = useState(false);
@@ -56,82 +65,9 @@ const ListIncidents = () => {
       .catch(function (err) {
         //handle error
         console.log(err);
+        setLoadingTable(false);
       });
   }, []);
-
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          // ref={node => {
-          //   this.searchInput = node;
-          // }}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Search
-          </Button>
-          <Button
-            onClick={() => handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Reset
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-    ),
-    onFilter: (value, record) =>
-      record[dataIndex]
-        ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
-        : "",
-    // onFilterDropdownVisibleChange: visible => {
-    //   if (visible) {
-    //     setTimeout(() => this.searchInput.select(), 100);
-    //   }
-    // },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ""}
-        />
-      ) : (
-        text
-      ),
-  });
-
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
 
   const handleReset = (clearFilters) => {
     clearFilters();
@@ -217,30 +153,18 @@ const ListIncidents = () => {
     {
       title: "Tên sự cố",
       dataIndex: "name",
-      sorter: (a, b) => b.name.charCodeAt(0) - a.name.charCodeAt(0),
-      sortDirections: ["descend"],
-      ...getColumnSearchProps("name"),
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      sorter: (a, b) => b.status.charCodeAt(0) - a.status.charCodeAt(0),
-      sortDirections: ["descend"],
-      ...getColumnSearchProps("status"),
     },
     {
       title: "Mức độ",
       dataIndex: "level",
-      sorter: (a, b) => b.level.charCodeAt(0) - a.level.charCodeAt(0),
-      sortDirections: ["descend"],
-      ...getColumnSearchProps("level"),
     },
     {
       title: "Đội trưởng",
       dataIndex: "captain_id",
-      sorter: (a, b) => b.captain_id - a.captain_id,
-      sortDirections: ["descend"],
-      ...getColumnSearchProps("captain_id"),
     },
     {
       title: "",
@@ -301,18 +225,96 @@ const ListIncidents = () => {
   const handleCancel = () => {
     setVisibleModal(false);
   };
+
+  const search = (value) => {
+    // console.log("PASS", { value });
+    const filterTable = dataIncidents.filter((o) =>
+      Object.keys(o).some((k) => {
+        // console.log(String(o[k]).toLowerCase() + " - " + value.toLowerCase());
+        return (
+          k !== "incident_id" &&
+          String(o[k]).normalize().toLowerCase().includes(value.toLowerCase())
+        );
+      })
+    );
+    setFilterTable(filterTable);
+  };
+
   return (
     <div>
       <div className="header" onClick={() => {}}>
         Danh sách công việc xử lý sự cố
       </div>
       <div>
+        <Input.Search
+          style={{margin: "0 0 10px 0" }}
+          placeholder="Search by..."
+          enterButton
+          onSearch={search}
+        />
         <Spin spinning={loadingTable} tip="Loading...">
           <Table
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={dataIncidents}
+            dataSource={filterTable == null ? dataIncidents : filterTable}
             size="middle"
+            expandable={{
+              expandedRowRender: (record) => {
+                const childColumns = [
+                  { title: "Date", dataIndex: "date", key: "date" },
+                  { title: "Name", dataIndex: "name", key: "name" },
+                  {
+                    title: "Status",
+                    key: "state",
+                    render: () => (
+                      <span>
+                        <Badge status="success" />
+                        Finished
+                      </span>
+                    ),
+                  },
+                  {
+                    title: "Upgrade Status",
+                    dataIndex: "upgradeNum",
+                    key: "upgradeNum",
+                  },
+                  {
+                    title: "Action",
+                    dataIndex: "operation",
+                    key: "operation",
+                    render: () => (
+                      <Space size="middle">
+                        <a>Pause</a>
+                        <a>Stop</a>
+                        <Dropdown overlay={menu}>
+                          <a>
+                            More <DownOutlined />
+                          </a>
+                        </Dropdown>
+                      </Space>
+                    ),
+                  },
+                ];
+
+                const childData = [];
+                for (let i = 0; i < 3; ++i) {
+                  childData.push({
+                    key: i,
+                    date: "2014-12-24 23:12:00",
+                    name: "This is production name",
+                    upgradeNum: "Upgraded: 56",
+                  });
+                }
+                return (
+                  <Table
+                    columns={childColumns}
+                    dataSource={childData}
+                    pagination={false}
+                  />
+                );
+              },
+              rowExpandable: (record) => record.name !== "Not Expandable",
+            }}
           />
         </Spin>
       </div>
