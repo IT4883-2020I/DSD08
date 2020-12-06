@@ -19,7 +19,7 @@ const Incident = () => {
   return (
     <div>
       {" "}
-      <Tabs defaultActiveKey="6">
+      <Tabs defaultActiveKey="1">
         <TabPane
           tab={
             <span>

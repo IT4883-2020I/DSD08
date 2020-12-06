@@ -27,7 +27,7 @@
   padding: 8px 8px;
   overflow-wrap: break-word;
 }
-.ant-table-thead {
+.listSettingSchedule .ant-table-thead {
   display: none;
 }
 .button-save {

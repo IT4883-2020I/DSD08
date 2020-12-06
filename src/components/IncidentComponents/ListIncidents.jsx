@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from "react";
 import "../Styles/StyleListIncidents.css";
-import { Table, Modal, Button, Input, Space } from "antd";
+import { Table, Modal, Button, Input, Space, message } from "antd";
 import Highlighter from "react-highlight-words";
 import { SearchOutlined } from "@ant-design/icons";
 import { Link, useLocation, useHistory } from "react-router-dom";
-import { List, Avatar, Spin, Badge, Menu, Dropdown } from "antd";
+import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  Form,
+  List,
+  Avatar,
+  Spin,
+  Badge,
+  Menu,
+  Dropdown,
+  Popconfirm,
+  Select,
+} from "antd";
 import {
   CheckOutlined,
   CloseOutlined,
@@ -29,7 +40,14 @@ const ListIncidents = () => {
   const [detailIncident, setDetailIncident] = useState(null);
   const [loadingModal, setLoadingModal] = useState(false);
   const [loadingTable, setLoadingTable] = useState(true);
+  const [loadingChildTable, setLoadingChildTable] = useState(true);
   const [visibleModal, setVisibleModal] = useState(false);
+  const [listChildDataRecord, setListChildDataRecord] = useState([]);
+  const [dataEmployees, setDataEmployees] = useState([]);
+  const [listTypeWork, setListTypeWork] = useState([]);
+  const [typeWorkNew, setTypeWorkNew] = useState(null);
+  const [listEmployeesNew, setListEmployeesNew] = useState([]);
+  const [idModalIncident, setIdModalIncident] = useState(null);
 
   const { pathname } = useLocation();
   const codeIncidents = {
@@ -44,11 +62,18 @@ const ListIncidents = () => {
 
   const [searchText, setSearchText] = useState();
   const [searchedColumn, setSearchedColumn] = useState();
-
+  const { Option } = Select;
   useEffect(() => {
+    getListEmployees();
+    getListWork();
+    getDataIncidents();
+  }, []);
+
+  const getDataIncidents = () => {
+    setLoadingTable(true);
     axios({
       method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/task/listing",
+      url: process.env.REACT_APP_DOMAIN_API + "/task/incident-listing",
       // url: URL_API + "/report/listing",
       headers: {
         "api-token": API_TOKEN,
@@ -59,7 +84,24 @@ const ListIncidents = () => {
         // console.log(response);
         //handle success
         // setDataIncidents(response.data[0].tasks);
-        setDataIncidents(response.data.tasks);
+        let data = [];
+        response.data.map((item) => {
+          let convertItem = {
+            id: item._id,
+            name: item.name,
+            type: item.type.name,
+            status: item.status.name,
+            statusCode: item.status.code,
+            level: item.level.name,
+            location: item.location,
+            levelCode: item.level.code,
+            images: item.images,
+            videos: item.videos,
+            description: item.description,
+          };
+          data.push(convertItem);
+        });
+        setDataIncidents(data);
         setLoadingTable(false);
       })
       .catch(function (err) {
@@ -67,7 +109,7 @@ const ListIncidents = () => {
         console.log(err);
         setLoadingTable(false);
       });
-  }, []);
+  };
 
   const handleReset = (clearFilters) => {
     clearFilters();
@@ -157,61 +199,132 @@ const ListIncidents = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
+      render: (value, dataRecord) => {
+        return (
+          <div>
+            {dataRecord.statusCode == 0 ? (
+              <Badge status="warning" text={dataRecord.status} />
+            ) : dataRecord.statusCode == 1 ? (
+              <Badge status="processing" text={dataRecord.status} />
+            ) : (
+              <Badge status="success" text={dataRecord.status} />
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "Mức độ",
       dataIndex: "level",
     },
     {
-      title: "Đội trưởng",
-      dataIndex: "captain_id",
+      title: "Địa điểm",
+      dataIndex: "location",
+      width: "15%",
+    },
+    {
+      title: "Loại",
+      dataIndex: "type",
+    },
+    {
+      title: "Mô tả",
+      dataIndex: "description",
+      width: "20%",
     },
     {
       title: "",
       key: "operation",
+      width: "10%",
       render: (record) => (
-        <div>
-          <CheckOutlined
-            // onClick={() => {
-            //   setVisibleModal(true);
-            //   setContentModal("Xác nhận xử lý xong sự cố ?");
-            // }}
-            style={{ color: "green", marginLeft: 5, display: "none" }}
-          />
-          <CloseOutlined
-            // onClick={() => {
-            //   setVisibleModal(true);
-            //   setContentModal("Từ chối xử lý sự cố ?");
-            // }}
-            style={{ color: "red", marginLeft: 5, display: "none" }}
-          />
-          <InfoCircleOutlined
-            onClick={(value) => {
-              getInforIncidents(record);
-            }}
-            style={{ color: "blue", marginLeft: 5 }}
-          />
+        <div style={{ textAlign: "center" }}>
+          {/* <span>
+            <InfoCircleOutlined
+              onClick={(value) => {
+                getInforIncidents(record);
+              }}
+              style={{ color: "blue", marginLeft: 5 }}
+            />
+          </span> */}
+          <span style={record.statusCode == 0 ? {} : { display: "none" }}>
+            <Button
+              type="primary"
+              onClick={() => {
+                setVisibleModal(true);
+                setTypeWorkNew(null);
+                setListEmployeesNew([]);
+                setIdModalIncident(record.id);
+              }}
+            >
+              Tiến hành xử lý
+            </Button>
+          </span>
         </div>
       ),
     },
   ];
 
-  const getInforIncidents = (record) => {
-    setDetailIncident(null);
-    setVisibleModal(true);
-    setLoadingModal(true);
+  const getInforIncident = (idIncident) => {
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "get",
+        url: process.env.REACT_APP_DOMAIN_API + "/task/detail",
+        headers: {
+          "api-token": API_TOKEN,
+          "project-type": CURRENT_TYPE,
+        },
+        params: { incident_id: idIncident },
+      })
+        .then(function (response) {
+          setLoadingChildTable(false);
+          resolve(response.data);
+        })
+        .catch(function (err) {
+          //handle error
+          // console.log(err);
+          setLoadingChildTable(false);
+          message.error(err.response.data.error.message);
+          reject(err);
+        });
+    });
+  };
+
+  const getListEmployees = () => {
     axios({
       method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/task/detail",
+      url: process.env.REACT_APP_DOMAIN_API + "/task/employee-listing",
       headers: {
         "api-token": API_TOKEN,
         "project-type": CURRENT_TYPE,
       },
-      params: { id: record.id },
     })
       .then(function (response) {
-        setDetailIncident(response.data);
-        setLoadingModal(false);
+        const children = [];
+        response.data.map((item) => {
+          children.push(<Option key={item.id}>{item.full_name}</Option>);
+        });
+        setDataEmployees(children);
+      })
+      .catch(function (err) {
+        //handle error
+        console.log(err);
+      });
+  };
+
+  const getListWork = () => {
+    axios({
+      method: "get",
+      url: process.env.REACT_APP_DOMAIN_API + "/task-type/listing",
+      headers: {
+        "api-token": API_TOKEN,
+        "project-type": CURRENT_TYPE,
+      },
+    })
+      .then(function (response) {
+        const children = [];
+        response.data.map((item) => {
+          children.push(<Option key={item.id}>{item.name}</Option>);
+        });
+        setListTypeWork(children);
       })
       .catch(function (err) {
         //handle error
@@ -240,6 +353,57 @@ const ListIncidents = () => {
     setFilterTable(filterTable);
   };
 
+  const submitCreateNewChildWork = (value) => {
+    setLoadingModal(true);
+    let list = "";
+    value.listNewWorks.map((childWork, index) => {
+      if (index == 0) {
+        list = childWork.typeWork + "," + childWork.listEmployee.toString();
+      } else {
+        list +=
+          ";" + childWork.typeWork + "," + childWork.listEmployee.toString();
+      }
+    });
+    axios({
+      method: "post",
+      url: process.env.REACT_APP_DOMAIN_API + "/task/handler",
+      // url: URL_API + "/report/listing",
+      headers: {
+        "api-token": API_TOKEN,
+        "project-type": CURRENT_TYPE,
+      },
+      data: {
+        incident_id: idModalIncident,
+        list: list,
+      },
+    })
+      .then(function (response) {
+        setLoadingModal(false);
+        setVisibleModal(false);
+        getDataIncidents();
+      })
+      .catch(function (err) {
+        //handle error
+        console.log(err);
+        message.error(err.response.data.error.message);
+        setLoadingModal(false);
+      });
+  };
+
+  const EditableContext = React.createContext();
+
+  const EditableRow = (index) => {
+    // const [form] = Form.useForm();
+    return (
+      // <Form form={form} component={false}>
+      //   <EditableContext.Provider value={form}>
+      //     <tr {...props} />
+      //   </EditableContext.Provider>
+      // </Form>
+      <div>AAAAAAAAAAAAAA</div>
+    );
+  };
+
   return (
     <div>
       <div className="header" onClick={() => {}}>
@@ -247,7 +411,7 @@ const ListIncidents = () => {
       </div>
       <div>
         <Input.Search
-          style={{margin: "0 0 10px 0" }}
+          style={{ margin: "0 0 10px 0" }}
           placeholder="Search by..."
           enterButton
           onSearch={search}
@@ -256,62 +420,89 @@ const ListIncidents = () => {
           <Table
             rowKey={(record) => record.id}
             columns={columns}
+            pagination={{ defaultPageSize: 5 }}
             dataSource={filterTable == null ? dataIncidents : filterTable}
             size="middle"
             expandable={{
-              expandedRowRender: (record) => {
+              expandedRowRender: (record, index, indent, expand) => {
+                let childData = [];
                 const childColumns = [
-                  { title: "Date", dataIndex: "date", key: "date" },
-                  { title: "Name", dataIndex: "name", key: "name" },
                   {
-                    title: "Status",
-                    key: "state",
-                    render: () => (
-                      <span>
-                        <Badge status="success" />
-                        Finished
-                      </span>
-                    ),
+                    title: "Loại công việc xử lý",
+                    dataIndex: "name",
                   },
                   {
-                    title: "Upgrade Status",
-                    dataIndex: "upgradeNum",
-                    key: "upgradeNum",
+                    title: "Nhân viên thực hiện",
+                    dataIndex: "employees",
                   },
                   {
-                    title: "Action",
+                    title: "Mô tả công việc",
+                    dataIndex: "description",
+                  },
+                  {
+                    title: "",
                     dataIndex: "operation",
-                    key: "operation",
-                    render: () => (
-                      <Space size="middle">
-                        <a>Pause</a>
-                        <a>Stop</a>
-                        <Dropdown overlay={menu}>
-                          <a>
-                            More <DownOutlined />
-                          </a>
-                        </Dropdown>
-                      </Space>
-                    ),
+                    render: (text, record) =>
+                      record.creatNew ? (
+                        <Popconfirm
+                          title="Sure to delete?"
+                          // onConfirm={() => handleDeleteRow(record.key)}
+                        >
+                          <a>Delete</a>
+                        </Popconfirm>
+                      ) : null,
                   },
                 ];
+                if (expand && loadingChildTable == false) {
+                  if (listChildDataRecord.length > 0) {
+                    let child = listChildDataRecord.find(
+                      (item) => item.id == record.id
+                    );
+                    console.log("Asd213", listChildDataRecord);
 
-                const childData = [];
-                for (let i = 0; i < 3; ++i) {
-                  childData.push({
-                    key: i,
-                    date: "2014-12-24 23:12:00",
-                    name: "This is production name",
-                    upgradeNum: "Upgraded: 56",
-                  });
+                    if (child) {
+                      child.map((data) => {
+                        let listEmployees = "";
+                        data.employees.map((person, index) => {
+                          if (index == 0) {
+                            listEmployees += person.full_name;
+                          } else {
+                            listEmployees += ", " + person.full_name;
+                          }
+                        });
+                        let childDataObject = {
+                          name: data.task_type.name,
+                          employees: listEmployees,
+                          description: data.task_type.description,
+                        };
+                        childData.push(childDataObject);
+                        // console.log("dasd", childDataObject);
+                      });
+                    }
+                  }
                 }
                 return (
-                  <Table
-                    columns={childColumns}
-                    dataSource={childData}
-                    pagination={false}
-                  />
+                  <Spin spinning={loadingChildTable} tip="Loading...">
+                    <Table
+                      rowKey={(record) => record.id}
+                      columns={childColumns}
+                      dataSource={childData}
+                      pagination={false}
+                    />
+                  </Spin>
                 );
+              },
+              onExpand: (expanded, record) => {
+                if (expanded) {
+                  setLoadingChildTable(true);
+                  getInforIncident(record.id).then((dataIncident) => {
+                    dataIncident.id = record.id;
+                    setListChildDataRecord([
+                      ...listChildDataRecord,
+                      dataIncident,
+                    ]);
+                  });
+                }
               },
               rowExpandable: (record) => record.name !== "Not Expandable",
             }}
@@ -319,63 +510,114 @@ const ListIncidents = () => {
         </Spin>
       </div>
       <Modal
-        title={null}
+        title={"Thêm công việc xử lý"}
         visible={visibleModal}
         onOk={handleOk}
         onCancel={handleCancel}
         footer={null}
       >
         <Spin spinning={loadingModal} tip="Loading...">
-          <div>
-            <div className="header">Thông tin chi tiết sự cố</div>
-            {detailIncident ? (
-              <div>
-                <p>Tên sự cố: {detailIncident.task.name}</p>
-                <p>Loại sự cố: {typeIncident.name}</p>
-                <p>Cấp độ: {detailIncident.task.level}</p>
-              </div>
-            ) : null}
-            <div className="header">Danh sách nhân viên đang xử lý</div>
-            <div>
-              {detailIncident ? (
-                <List
-                  itemLayout="horizontal"
-                  dataSource={detailIncident.doing_employees}
-                  renderItem={(item) => (
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={
-                          <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                        }
-                        title={<a href="https://ant.design">{item.name}</a>}
-                        description="Descripttion"
-                      />
-                    </List.Item>
-                  )}
-                />
-              ) : null}
-            </div>
-            <div className="header">Danh sách nhân viên dự kiến xử lý</div>
-            <div>
-              {detailIncident ? (
-                <List
-                  itemLayout="horizontal"
-                  dataSource={detailIncident.pending_employees}
-                  renderItem={(item) => (
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={
-                          <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                        }
-                        title={<a href="https://ant.design">{item.name}</a>}
-                        description="Descripttion"
-                      />
-                    </List.Item>
-                  )}
-                />
-              ) : null}
-            </div>
-          </div>
+          {/* <div>
+            <Select
+              style={{ width: "100%", marginTop: 20 }}
+              placeholder="Loại công việc"
+              onChange={(value) => {
+                setTypeWorkNew(value);
+              }}
+            >
+              {listTypeWork}
+            </Select>
+            <Select
+              style={{ width: "100%", marginTop: 20 }}
+              mode="multiple"
+              placeholder="Tên nhân viên"
+              onChange={(value) => {
+                setListEmployeesNew(value);
+              }}
+            >
+              {dataEmployees}
+            </Select>
+            <Button
+              type="primary"
+              style={{ marginTop: 20 }}
+              onClick={submitCreateNewChildWork}
+            >
+              Lưu
+            </Button>
+          </div> */}
+          <Form
+            name="dynamic_form_nest_item"
+            onFinish={submitCreateNewChildWork}
+            autoComplete="off"
+          >
+            <Form.List name="listNewWorks">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map((field) => (
+                    <Space
+                      key={field.key}
+                      style={{ display: "flex", marginBottom: 8 }}
+                      align="baseline"
+                    >
+                      <Form.Item
+                        {...field}
+                        name={[field.name, "typeWork"]}
+                        fieldKey={[field.fieldKey, "typeWork"]}
+                        rules={[
+                          { required: true, message: "Thiếu loại công việc" },
+                        ]}
+                      >
+                        <Select
+                          style={{ minWidth: 200 }}
+                          placeholder="Loại công việc"
+                          onChange={(value) => {
+                            setTypeWorkNew(value);
+                          }}
+                        >
+                          {listTypeWork}
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
+                        {...field}
+                        name={[field.name, "listEmployee"]}
+                        fieldKey={[field.fieldKey, "listEmployee"]}
+                        rules={[
+                          { required: true, message: "Thiếu tên nhân viên" },
+                        ]}
+                      >
+                        <Select
+                          style={{ minWidth: 200 }}
+                          mode="multiple"
+                          placeholder="Tên nhân viên"
+                          onChange={(value) => {
+                            setListEmployeesNew(value);
+                          }}
+                        >
+                          {dataEmployees}
+                        </Select>
+                      </Form.Item>
+                      <MinusCircleOutlined onClick={() => remove(field.name)} />
+                    </Space>
+                  ))}
+                  <Form.Item>
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
+                    >
+                      Thêm công việc xử lý mới
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
         </Spin>
       </Modal>
     </div>

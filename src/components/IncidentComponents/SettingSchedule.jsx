@@ -367,6 +367,7 @@ const SettingSchedule = () => {
       <div className="listSettingSchedule">
         <Spin spinning={loadingTable} tip="Loading...">
           <Table
+            rowKey={(record) => record.id}
             dataSource={dataSettingSchedule}
             pagination={false}
             onRow={(item) => {
