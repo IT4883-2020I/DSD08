@@ -436,7 +436,12 @@ const SettingSchedule = () => {
                   });
                   setIdItemEditing(null);
                   setItemSelected(null);
-                  setDataSettingSchedule(dataSettingSchedule);
+                  if (idItemEditing == null) {
+                    setLoadingTable(true);
+                    getDataSetting();
+                  } else {
+                    setDataSettingSchedule(dataSettingSchedule);
+                  }
                 }}
               >
                 Hủy
