@@ -174,6 +174,26 @@ const ListIncidents = () => {
     {
       title: "Loại",
       dataIndex: "type",
+      filters: [
+        {
+          text: 'Sự cố cháy rừng',
+          value: 'Sự cố cháy rừng',
+        },
+        {
+          text: 'Sự cố đê điều',
+          value: 'Sự cố đê điều',
+        },
+        {
+          text: 'Sự cố cây trồng',
+          value: 'Sự cố cây trồng',
+        },
+        {
+          text: 'Sự cố lưới điện cao thế',
+          value: 'Sự cố lưới điện cao thế',
+        },
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => record.type.indexOf(value) === 0,
     },
     {
       title: "Mô tả",

@@ -155,19 +155,19 @@ const ListReport = () => {
     {
       title: "Tên công việc",
       dataIndex: "title",
-      ...getColumnSearchProps("title"),
+      // ...getColumnSearchProps("title"),
     },
     {
       title: "Mã công việc",
       dataIndex: "task_id",
       sorter: (a, b) => b.task_id - a.task_id,
       sortDirections: ["descend"],
-      ...getColumnSearchProps("task_id"),
+      // ...getColumnSearchProps("task_id"),
     },
     {
       title: "Nội dung xử lý sự cố",
       dataIndex: "content",
-      ...getColumnSearchProps("content"),
+      // ...getColumnSearchProps("content"),
     },
     {
       title: "Trạng thái",
@@ -244,23 +244,41 @@ const ListReport = () => {
       title: "Loại sự cố",
       dataIndex: "type",
       render: (text, record) => <p>{codeIncidents[record.type].name}</p>,
-      sorter: (a, b) => b.type.charCodeAt(0) - a.type.charCodeAt(0),
-      sortDirections: ["descend"],
+      filters: [
+        {
+          text: 'Sự cố cháy rừng',
+          value: 'CHAY_RUNG',
+        },
+        {
+          text: 'Sự cố đê điều',
+          value: 'Sự cố đê điều',
+        },
+        {
+          text: 'Sự cố cây trồng',
+          value: 'CAY_TRONG',
+        },
+        {
+          text: 'Sự cố lưới điện trên cao',
+          value: 'LUOI_DIEN',
+        },
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => record.type.indexOf(value) === 0,
     },
-    {
-      title: "Khởi tạo",
-      dataIndex: "created_at",
-      sorter: (a, b) => b.created_at.charCodeAt(0) - a.created_at.charCodeAt(0),
-      sortDirections: ["descend"],
-      ...getColumnSearchProps("created_at"),
-    },
-    {
-      title: "Cập nhật lần cuối",
-      dataIndex: "updated_at",
-      sorter: (a, b) => b.updated_at.charCodeAt(0) - a.updated_at.charCodeAt(0),
-      sortDirections: ["descend"],
-      ...getColumnSearchProps("updated_at"),
-    },
+    // {
+    //   title: "Khởi tạo",
+    //   dataIndex: "created_at",
+    //   sorter: (a, b) => b.created_at.charCodeAt(0) - a.created_at.charCodeAt(0),
+    //   sortDirections: ["descend"],
+    //   // ...getColumnSearchProps("created_at"),
+    // },
+    // {
+    //   title: "Cập nhật lần cuối",
+    //   dataIndex: "updated_at",
+    //   sorter: (a, b) => b.updated_at.charCodeAt(0) - a.updated_at.charCodeAt(0),
+    //   sortDirections: ["descend"],
+    //   // ...getColumnSearchProps("updated_at"),
+    // },
     {
       title: "",
       key: "operation",
