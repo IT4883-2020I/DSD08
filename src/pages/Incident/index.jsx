@@ -21,33 +21,19 @@ const Incident = () => {
       {" "}
       <Tabs defaultActiveKey="1">
         <TabPane
-          tab={
-            <span>
-              {/* <UnorderedListOutlined /> */}
-              Danh sách công việc xử lý
-            </span>
-          }
-          key="1"
-        >
+          tab={<span> Danh sách công việc xử lý   </span>} key="1" >
           <ListIncidents />
         </TabPane>
         <TabPane
-          tab={
-            <span>
-              {/* <AndroidOutlined /> */}
-              Danh sách báo cáo kết quả
-            </span>
-          }
-          key="2"
-        >
+          tab={<span> Danh sách báo cáo kết quả </span>} key="2">
           <ListReport />
         </TabPane>
-        <TabPane tab={<span>Danh sách yêu cầu hỗ trợ</span>} key="3">
+        {/* <TabPane tab={<span>Danh sách yêu cầu hỗ trợ</span>} key="3">
           <ListSupports />
-        </TabPane>
-        <TabPane tab={<span>Lịch làm việc</span>} key="4">
+        </TabPane> */}
+        {/* <TabPane tab={<span>Lịch làm việc</span>} key="4">
           <Schedule />
-        </TabPane>
+        </TabPane> */}
         <TabPane tab={<span>Danh sách nhân viên</span>} key="5">
           <ListStaff />
         </TabPane>

@@ -4,6 +4,8 @@ import { Table, Modal, Button, Input, Space, Spin } from "antd";
 import Highlighter from "react-highlight-words";
 import { SearchOutlined } from "@ant-design/icons";
 import { Link, useLocation, useHistory } from "react-router-dom";
+import validator from 'validate-image-url'
+import ReactPlayer from 'react-player'
 import {
   CheckOutlined,
   CloseOutlined,
@@ -17,6 +19,7 @@ const ListReport = () => {
   const [contentModal, setContentModal] = useState(null);
   const [visibleModal, setVisibleModal] = useState(false);
   const [loadingTable, setLoadingTable] = useState(true);
+  const [filterTable, setFilterTable] = useState(null);
   const { pathname } = useLocation();
   const codeIncidents = {
     CHAY_RUNG: { id: "222222", name: "Sự cố  cháy rừng" },
@@ -134,28 +137,19 @@ const ListReport = () => {
     setSearchText("");
   };
 
-  const data = [
-    {
-      id: 1,
-      employee_id: 100,
-      task_id: 1,
-      content: "Đã xử lý xong sự cố. Xin hãy xác nhận",
-      status: "doing",
-      type: "000000",
-      created_at: null,
-      updated_at: null,
-    },
-    {
-      id: 2,
-      employee_id: 100,
-      task_id: 2,
-      content: "Đã xử lý xong sự cố. Hãy kiểm tra",
-      status: "done",
-      type: "000000",
-      created_at: null,
-      updated_at: null,
-    },
-  ];
+  const search = (value) => {
+    // console.log("PASS", { value });
+    const filterTable = dataReport.filter((o) =>
+      Object.keys(o).some((k) => {
+        // console.log(String(o[k]).toLowerCase() + " - " + value.toLowerCase());
+        return (
+          k !== "incident_id" &&
+          String(o[k]).normalize().toLowerCase().includes(value.toLowerCase())
+        );
+      })
+    );
+    setFilterTable(filterTable);
+  };
 
   const columns = [
     {
@@ -298,16 +292,23 @@ const ListReport = () => {
   };
 
   return (
+    
     <div>
       <div className="header" onClick={() => {}}>
         Danh sách báo cáo kết quả xử lý sự cố
       </div>
+      <Input.Search
+          style={{ margin: "0 0 10px 0" }}
+          placeholder="Search by..."
+          enterButton
+          onSearch={search}
+        />
       <div>
         <Spin spinning={loadingTable} tip="Loading...">
           <Table
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={dataReport}
+            dataSource={filterTable == null ? dataReport : filterTable}
             size="middle"
           />
         </Spin>
@@ -318,8 +319,10 @@ const ListReport = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         footer={null}
+        width={'fit-content'}
       >
         <img width="100%" height="100%" src={currentImg} />
+        <ReactPlayer url={currentImg} />
       </Modal>
     </div>
   );

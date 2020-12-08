@@ -116,81 +116,6 @@ const ListIncidents = () => {
     setSearchText("");
   };
 
-  const data = [
-    {
-      id: 3,
-      name: "Sự cố lưới điện ZZZ 5008",
-      type: "000000",
-      captain_id: null,
-      status: "Đang xử lý",
-      level: "Sự cố cấp I",
-      incident_id: null,
-      priority: null,
-      created_at: "2020-11-15 17:57:46",
-      updated_at: "2020-11-15 17:57:46",
-    },
-    {
-      id: 4,
-      name: "Sự cố lưới điện ZZZ 9713",
-      type: "000000",
-      captain_id: null,
-      status: "Đang xử lý",
-      level: "Sự cố cấp I",
-      incident_id: null,
-      priority: null,
-      created_at: "2020-11-15 17:58:04",
-      updated_at: "2020-11-15 17:58:04",
-    },
-    {
-      id: 5,
-      name: "Sự cố lưới điện ZZZ 9633",
-      type: "000000",
-      captain_id: null,
-      status: "Đang xử lý",
-      level: "Sự cố cấp I",
-      incident_id: null,
-      priority: null,
-      created_at: "2020-11-15 17:58:07",
-      updated_at: "2020-11-15 17:58:07",
-    },
-    {
-      id: 6,
-      name: "Sự cố lưới điện ZZZ 1616",
-      type: "000000",
-      captain_id: null,
-      status: "Đang xử lý",
-      level: "Sự cố cấp I",
-      incident_id: null,
-      priority: null,
-      created_at: "2020-11-15 17:58:40",
-      updated_at: "2020-11-15 17:58:40",
-    },
-    {
-      id: 2,
-      name: "Sự cố lưới điện ZZZ 8579",
-      type: "000000",
-      captain_id: null,
-      status: "Đang xử lý",
-      level: "Sự cố cấp I",
-      incident_id: null,
-      priority: null,
-      created_at: "2020-11-15 17:38:12",
-      updated_at: "2020-11-15 17:38:12",
-    },
-    {
-      id: 7,
-      name: "Sự cố lưới điện ZZZ 8199",
-      type: "000000",
-      captain_id: 999,
-      status: "Đang xử lý",
-      level: "Sự cố cấp I",
-      incident_id: 124,
-      priority: "1",
-      created_at: "2020-11-15 18:06:05",
-      updated_at: "2020-11-15 18:06:05",
-    },
-  ];
-
   const columns = [
     {
       title: "Tên sự cố",
@@ -199,6 +124,18 @@ const ListIncidents = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
+      filters: [
+        {
+          text: 'In Progress',
+          value: 'In Progress',
+        },
+        {
+          text: 'Open',
+          value: 'Open',
+        },
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => record.status.indexOf(value) === 0,
       render: (value, dataRecord) => {
         return (
           <div>
@@ -207,8 +144,8 @@ const ListIncidents = () => {
             ) : dataRecord.statusCode == 1 ? (
               <Badge status="processing" text={dataRecord.status} />
             ) : (
-              <Badge status="success" text={dataRecord.status} />
-            )}
+                  <Badge status="success" text={dataRecord.status} />
+                )}
           </div>
         );
       },
@@ -216,6 +153,18 @@ const ListIncidents = () => {
     {
       title: "Mức độ",
       dataIndex: "level",
+      filters: [
+        {
+          text: 'Normal',
+          value: 'Normal',
+        },
+        {
+          text: 'Urgency',
+          value: 'Urgency',
+        },
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => record.level.indexOf(value) === 0,
     },
     {
       title: "Địa điểm",
@@ -232,11 +181,11 @@ const ListIncidents = () => {
       width: "20%",
     },
     {
-      title: "",
+      title: "Action",
       key: "operation",
       width: "10%",
       render: (record) => (
-        <div style={{ textAlign: "center" }}>
+        <div style={{ textAlign: "left" }}>
           {/* <span>
             <InfoCircleOutlined
               onClick={(value) => {
@@ -406,7 +355,7 @@ const ListIncidents = () => {
 
   return (
     <div>
-      <div className="header" onClick={() => {}}>
+      <div className="header" onClick={() => { }}>
         Danh sách công việc xử lý sự cố
       </div>
       <div>
@@ -446,7 +395,7 @@ const ListIncidents = () => {
                       record.creatNew ? (
                         <Popconfirm
                           title="Sure to delete?"
-                          // onConfirm={() => handleDeleteRow(record.key)}
+                        // onConfirm={() => handleDeleteRow(record.key)}
                         >
                           <a>Delete</a>
                         </Popconfirm>
