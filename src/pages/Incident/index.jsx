@@ -35,9 +35,9 @@ const Incident = () => {
         {/* <TabPane tab={<span>Lịch làm việc</span>} key="4">
           <Schedule />
         </TabPane> */}
-        {/* <TabPane tab={<span>Danh sách nhân viên</span>} key="5">
+        <TabPane tab={<span>Danh sách nhân viên</span>} key="5">
           <ListStaff />
-        </TabPane> */}
+        </TabPane>
         <TabPane tab={<span>Cấu hình lịch làm việc</span>} key="6">
           <SettingSchedule />
         </TabPane>

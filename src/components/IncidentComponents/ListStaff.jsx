@@ -13,13 +13,14 @@ import axios from "axios";
 import URL_API from "./url";
 
 const ListStaff = () => {
-  const [dataReport, setDataReport] = useState([]);
+  const [dataEmployee, setdataEmployee] = useState([]);
   const [contentModal, setContentModal] = useState(null);
   const [loadingModal, setLoadingModal] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
   const [detailEmployee, setDetailEmployee] = useState(null);
   const [loadingTable, setLoadingTable] = useState(true);
   const { pathname } = useLocation();
+  const [dataAPI, setDataAPI] = useState([]);
   const codeIncidents = {
     CHAY_RUNG: { id: "222222", name: "Sự cố  cháy rừng" },
     DE_DIEU: { id: "111111", name: "Sự cố  đê điều" },
@@ -47,197 +48,139 @@ const ListStaff = () => {
         //handle success
         console.log(response)
         setLoadingTable(false)
-        setDataReport(response.data.employees);
+        console.log(response.data.list)
+        setDataAPI(response.data.list)
+        // let data = [];
+        // response.data.list.map((item) => {
+        //   let convertItem = item.employee;
+        //   data.push(convertItem);
+        //   console.log(data)
+        // });
+        // setdataEmployee(data)
       })
       .catch(function (err) {
         //handle error
         console.log(err);
       });
+
+
   }, []);
 
-  const getColumnSearchProps = dataIndex => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          // ref={node => {
-          //   this.searchInput = node;
-          // }}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: 'block' }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Search
-          </Button>
-          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>
-            Reset
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-    onFilter: (value, record) =>
-      record[dataIndex]
-        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
-        : '',
-    // onFilterDropdownVisibleChange: visible => {
-    //   if (visible) {
-    //     setTimeout(() => this.searchInput.select(), 100);
-    //   }
-    // },
-    render: text =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ''}
-        />
-      ) : (
-          text
-        ),
-  });
-
-
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0])
-    setSearchedColumn(dataIndex)
-  };
-
-  const handleReset = clearFilters => {
-    clearFilters();
-    setSearchText('');
-  };
 
 
   const columns = [
     {
       title: "Mã nhân viên",
-      dataIndex: "employee_id",
-      sorter: (a, b) => b.employee_id - a.employee_id,
+      dataIndex: "id",
+      render: (text, record) => (<p>{record.employee.id}</p>),
+      sorter: (a, b) => b.employee.id - a.employee.id,
       sortDirections: ['descend'],
-      ...getColumnSearchProps('employee_id')
     },
     {
       title: "Tên nhân viên",
-      dataIndex: "name",
-      sorter: (a, b) => b.name.charCodeAt(0) - a.name.charCodeAt(0),
+      dataIndex: "full_name",
+      render: (text, record) => (<p>{record.employee.full_name}</p>),
+      sorter: (a, b) => b.employee.full_name.charCodeAt(0) - a.employee.full_name.charCodeAt(0),
       sortDirections: ['descend'],
-      ...getColumnSearchProps('name')
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      render: (text, record) => (<p>{record.employee.phone}</p>),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      render: (text, record) => (<p>{record.employee.email}</p>)
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      render: (text, record) => (<p>{record.employee.address}</p>),
     },
     {
       title: "Vai trò",
       dataIndex: "role",
-      sorter: (a, b) => b.role.charCodeAt(0) - a.role.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('role')
+      render: (text, record) => (<p>{record.employee.role}</p>),
+      // sorter: (a, b) => b.employee.role.charCodeAt(0) - a.employee.role.charCodeAt(0),
+      // sortDirections: ['descend'],
+      filters: [
+        {
+          text: 'ADMIN',
+          value: 'ADMIN',
+        },
+        {
+          text: 'INCIDENT_STAFF',
+          value: 'INCIDENT_STAFF',
+        },
+        {
+          text: 'MANAGER',
+          value: 'MANAGER',
+        },
+        {
+          text: 'SUPERVISOR',
+          value: 'SUPERVISOR',
+        },
+        {
+          text: 'DRONE_STAFT',
+          value: 'DRONE_STAFT',
+        }
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => record.employee.role.indexOf(value) === 0,
     },
-    // {
-    //   title: "Trạng thái",
-    //   dataIndex: "status",
-    //   sorter: (a, b) => a.status.charCodeAt(0) - b.status.charCodeAt(0),
-    //   sortDirections: ['descend'],
-    //   render: (text, record) =>
-    //     record.status == "waiting" ? (
-    //       <div
-    //         style={{
-    //           flexDirection: "row",
-    //           display: "flex",
-    //           alignItems: "center",
-    //         }}
-    //       >
-    //         <div
-    //           style={{
-    //             width: 10,
-    //             height: 10,
-    //             backgroundColor: "red",
-    //             borderRadius: 5,
-    //           }}
-    //         ></div>
-    //         <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-    //           {" "}
-    //           {record.status}
-    //         </p>
-    //       </div>
-    //     ) : record.status == "doing" ? (
-    //       <div
-    //         style={{
-    //           flexDirection: "row",
-    //           display: "flex",
-    //           alignItems: "center",
-    //         }}
-    //       >
-    //         <div
-    //           style={{
-    //             width: 10,
-    //             height: 10,
-    //             backgroundColor: "orange",
-    //             borderRadius: 5,
-    //           }}
-    //         ></div>
-    //         <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-    //           {" "}
-    //           {record.status}
-    //         </p>
-    //       </div>
-    //     ) : (
-    //       <div
-    //         style={{
-    //           flexDirection: "row",
-    //           display: "flex",
-    //           alignItems: "center",
-    //         }}
-    //       >
-    //         <div
-    //           style={{
-    //             width: 10,
-    //             height: 10,
-    //             backgroundColor: "greenyellow",
-    //             borderRadius: 5,
-    //           }}
-    //         ></div>
-    //         <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-    //           {" "}
-    //           {"done"}
-    //         </p>
-    //       </div>
-    //     ),
-    // },
     {
       title: "Loại sự cố",
       dataIndex: "type",
-      render: (text, record) => <p>{codeIncidents[record.type].name}</p>,
-      sorter: (a, b) => b.type.charCodeAt(0) - a.type.charCodeAt(0),
-      sortDirections: ['descend'],
+      render: (text, record) => <p>{record.employee.type == 'CHAY_RUNG' ? 'Sự cố cháy rừng'
+        : record.employee.type == 'DE_DIEU' ? 'Sự cố đê điều'
+          : record.employee.type == 'CAY_TRONG' ? 'Sự cố cây trồng'
+            : 'Sự cố lưới điện cao thế'
+      }</p>,
+      // sorter: (a, b) => b.employee.type.charCodeAt(0) - a.employee.type.charCodeAt(0),
+      // sortDirections: ['descend'],
+      filters: [
+        {
+          text: 'Sự cố cháy rừng',
+          value: 'CHAY_RUNG',
+        },
+        {
+          text: 'Sự cố đê điều',
+          value: 'DE_DIEU',
+        },
+        {
+          text: 'Sự cố cây trồng',
+          value: 'CAY_TRONG',
+        },
+        {
+          text: 'Sự cố lưới điện cao thế',
+          value: 'LUOI_DIEN',
+        },
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => record.employee.type.indexOf(value) === 0,
     },
     {
-      title: "Khởi tạo",
-      dataIndex: "created_at",
-      sorter: (a, b) => b.created_at.charCodeAt(0) - a.created_at.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('created_at')
-    },
-    {
-      title: "Cập nhật lần cuối",
-      dataIndex: "updated_at",
-      sorter: (a, b) => b.updated_at.charCodeAt(0) - a.updated_at.charCodeAt(0),
-      sortDirections: ['descend'],
-      ...getColumnSearchProps('updated_at')
+      title: "Trạng thái hiện tại",
+      dataIndex: "status_activation",
+      render: (text, record) => <p>{record.employee.status_activation}</p>,
+      filters: [
+        {
+          text: 'BUSY',
+          value: 'BUSY',
+        },
+        {
+          text: 'FREE',
+          value: 'FREE',
+        },
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => record.employee.status_activation.indexOf(value) === 0,
     },
     {
       title: "",
       key: "operation",
-      render: (record) => (
+      render: (text, record) => (
         <div>
           <InfoCircleOutlined
             onClick={(value) => {
@@ -258,11 +201,9 @@ const ListStaff = () => {
 
 
   const handleOk = () => {
-    setDetailEmployee({});
     setVisibleModal(false);
   };
   const handleCancel = () => {
-    setDetailEmployee({})
     setVisibleModal(false);
   };
 
@@ -276,15 +217,15 @@ const ListStaff = () => {
       <div>
         <Spin spinning={loadingTable} tip="Loading...">
           <Table
-            rowKey={(record) => record.id}
+            rowKey={(record) => record.employee.id}
             columns={columns}
-            dataSource={dataReport}
+            dataSource={dataAPI}
             size="middle"
           />
         </Spin>
       </div>
       <Modal
-        title={`Thông tin nhân viên: ${detailEmployee ? detailEmployee.name : ""}`}
+        title={`Thông tin công việc của nhân viên: ${detailEmployee ? detailEmployee.employee.full_name : ""}`}
         visible={visibleModal}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -295,15 +236,32 @@ const ListStaff = () => {
             <div style={{ displayL: 'flex', flexWrap: 'wrap' }}>
               <div style={{ flex: '75%' }}>
                 <div>
-                  <p>Mã nhân viên: {detailEmployee.id}</p>
-                  <p>Vai trò: {detailEmployee.role}</p>
-                  <p>Loại sự cố: {detailEmployee.type}</p>
-                  <p>Khởi tạo: {detailEmployee.created_at}</p>
-                  <p>Cập nhật lần cuối: {detailEmployee.updated_at}</p>
+                  <p>Mã nhân viên: {detailEmployee.employee.id}</p>
+                  <p>Vai trò: {detailEmployee.employee.role}</p>
+                  <p>Loại sự cố: <p>{detailEmployee.employee.type == 'CHAY_RUNG' ? 'Sự cố cháy rừng'
+                    : detailEmployee.employee.type == 'DE_DIEU' ? 'Sự cố đê điều'
+                      : detailEmployee.employee.type == 'CAY_TRONG' ? 'Sự cố cây trồng'
+                        : 'Sự cố lưới điện cao thế'
+                  }</p></p>
                 </div>
-              </div>
-              <div style={{ flex: '75%' }}>
-                <img src={'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png'} width={'100%'} height={'100%'} />
+                {
+                  detailEmployee.current_task_type ?
+                    <div style={{ marginTop: 20 }}>
+                      <p>***Công việc hiện tại***</p>
+                      <p>Tên công việc: {detailEmployee.current_task_type.name}</p>
+                      <p>Mô tả: {detailEmployee.current_task_type.description}</p>
+                      <p>Loại sự cố: <p>{detailEmployee.employee.type == 'CHAY_RUNG' ? 'Sự cố cháy rừng'
+                        : detailEmployee.employee.type == 'DE_DIEU' ? 'Sự cố đê điều'
+                          : detailEmployee.employee.type == 'CAY_TRONG' ? 'Sự cố cây trồng'
+                            : 'Sự cố lưới điện cao thế'
+                      }</p></p>
+                    </div>
+                    : <p>***Nhân viên hiện tại không có công việc nào***</p>
+                }
+
+                <div style={{ flex: '75%' }}>
+                  <img src={detailEmployee.employee.avatar} width={'100%'} height={'100%'} />
+                </div>
               </div>
             </div>
           ) : null}
@@ -314,3 +272,4 @@ const ListStaff = () => {
 };
 
 export default ListStaff;
+
