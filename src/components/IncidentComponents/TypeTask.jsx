@@ -126,7 +126,7 @@ const TypeTask = () => {
             onFilter: (value, record) => record.project_type.indexOf(value) === 0,
         },
         {
-            title: "Trạn thái ưu tiên",
+            title: "Trạng thái ưu tiên",
             dataIndex: "prioritize",
             render: (value, record) => (
                 <p>{record.prioritize == true ? 'true' : 'false'}</p>
