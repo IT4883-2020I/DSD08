@@ -14,6 +14,7 @@ import {
 import "../Styles/StyleSettingSchedule.css";
 import axios from "axios";
 import moment from "moment";
+import URL_API from "./url";
 const { Option } = Select;
 const SettingSchedule = () => {
   const [dataSettingSchedule, setDataSettingSchedule] = useState([]);
@@ -28,8 +29,9 @@ const SettingSchedule = () => {
   const [checkboxSundayEdit, setCheckboxSundayEdit] = useState(false);
   const [listDayoffEdit, setListDayoffEdit] = useState([]);
 
-  const API_TOKEN = "4c901bcdba9f440a2a7c31c0bcbd78ec";
-  const CURRENT_TYPE = "LUOI_DIEN";
+  const API_TOKEN =
+    localStorage.getItem('token') || '4c901bcdba9f440a2a7c31c0bcbd78ec';
+  const CURRENT_TYPE = localStorage.getItem('project-type') || 'LUOI_DIEN';
   const childrenDay = [];
   for (let i = 1; i <= 31; i++) {
     childrenDay.push(<Option key={i}>{i}</Option>);
@@ -40,7 +42,7 @@ const SettingSchedule = () => {
   const getDataSetting = () => {
     axios({
       method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/schedule-setting/listing",
+      url: URL_API + "/schedule-setting/listing",
       // url: URL_API + "/report/listing",
       headers: {
         "api-token": API_TOKEN,
@@ -72,7 +74,7 @@ const SettingSchedule = () => {
   const submitEditItem = (item) => {
     axios({
       method: "put",
-      url: process.env.REACT_APP_DOMAIN_API + "/schedule-setting/update",
+      url: URL_API + "/schedule-setting/update",
       // url: URL_API + "/report/listing",
       headers: {
         "api-token": API_TOKEN,
@@ -98,7 +100,7 @@ const SettingSchedule = () => {
     // setLoadingTable(true);
     // axios({
     //   method: "put",
-    //   url: process.env.REACT_APP_DOMAIN_API + "/schedule-setting/update",
+    //   url: URL_API + "/schedule-setting/update",
     //   // url: URL_API + "/report/listing",
     //   headers: {
     //     "api-token": API_TOKEN,
@@ -126,7 +128,7 @@ const SettingSchedule = () => {
     setLoadingTable(true);
     axios({
       method: "post",
-      url: process.env.REACT_APP_DOMAIN_API + "/schedule-setting/set",
+      url: URL_API + "/schedule-setting/set",
       // url: URL_API + "/report/listing",
       headers: {
         "api-token": API_TOKEN,

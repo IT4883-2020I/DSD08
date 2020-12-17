@@ -27,8 +27,9 @@ const ListStaff = () => {
     CAY_TRONG: { id: "333333", name: "Sự cố  cây trồng" },
     LUOI_DIEN: { id: "000000", name: "Sự cố lưới điện trên cao" },
   };
-  const API_TOKEN = "4c901bcdba9f440a2a7c31c0bcbd78ec";
-  const CURRENT_TYPE = "LUOI_DIEN";
+  const API_TOKEN =
+    localStorage.getItem('token') || '4c901bcdba9f440a2a7c31c0bcbd78ec';
+  const CURRENT_TYPE = localStorage.getItem('project-type') || 'LUOI_DIEN';
   const typeIncident = codeIncidents[CURRENT_TYPE];
 
   const [searchText, setSearchText] = useState()
@@ -37,7 +38,7 @@ const ListStaff = () => {
   useEffect(() => {
     axios({
       method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/employee/listing",
+      url: URL_API + "/employee/listing",
       // url: URL_API + "/report/listing",
       headers: {
         "api-token": API_TOKEN,
@@ -182,7 +183,7 @@ const ListStaff = () => {
       key: "operation",
       render: (text, record) => (
         <div>
-          <InfoCircleOutlined
+          <InfoCircleOutlined data-toggle="tooltip" data-placement="top" title="Xem chi tiết"
             onClick={(value) => {
               getInforEmployee(record);
             }}

@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
-import "../Styles/StyleListIncidents.css";
-import { Table, Modal, Button, Input, Space, Spin } from "antd";
-import Highlighter from "react-highlight-words";
-import { SearchOutlined } from "@ant-design/icons";
-import { Link, useLocation, useHistory } from "react-router-dom";
-import validator from 'validate-image-url'
-import ReactPlayer from 'react-player'
+import React, { useEffect, useRef, useState } from 'react';
+import '../Styles/StyleListIncidents.css';
+import { Table, Modal, Button, Input, Space, Spin } from 'antd';
+import Highlighter from 'react-highlight-words';
+import { SearchOutlined } from '@ant-design/icons';
+import { Link, useLocation, useHistory } from 'react-router-dom';
+import validator from 'validate-image-url';
+import ReactPlayer from 'react-player';
+import { confirmAlert } from 'react-confirm-alert'; // Import
 import {
   CheckOutlined,
   CloseOutlined,
   InfoCircleOutlined,
-} from "@ant-design/icons";
-import axios from "axios";
-import URL_API from "./url";
+} from '@ant-design/icons';
+import axios from 'axios';
+import URL_API from './url';
 
 const ListReport = () => {
   const [dataReport, setDataReport] = useState([]);
@@ -22,13 +23,14 @@ const ListReport = () => {
   const [filterTable, setFilterTable] = useState(null);
   const { pathname } = useLocation();
   const codeIncidents = {
-    CHAY_RUNG: { id: "222222", name: "Sự cố  cháy rừng" },
-    DE_DIEU: { id: "111111", name: "Sự cố  đê điều" },
-    CAY_TRONG: { id: "333333", name: "Sự cố  cây trồng" },
-    LUOI_DIEN: { id: "000000", name: "Sự cố lưới điện trên cao" },
+    CHAY_RUNG: { id: '222222', name: 'Sự cố  cháy rừng' },
+    DE_DIEU: { id: '111111', name: 'Sự cố  đê điều' },
+    CAY_TRONG: { id: '333333', name: 'Sự cố  cây trồng' },
+    LUOI_DIEN: { id: '000000', name: 'Sự cố lưới điện trên cao' },
   };
-  const API_TOKEN = "4c901bcdba9f440a2a7c31c0bcbd78ec";
-  const CURRENT_TYPE = "LUOI_DIEN";
+  const API_TOKEN =
+    localStorage.getItem('token') || '4c901bcdba9f440a2a7c31c0bcbd78ec';
+  const CURRENT_TYPE = localStorage.getItem('project-type') || 'LUOI_DIEN';
   const typeIncident = codeIncidents[CURRENT_TYPE];
 
   const [searchText, setSearchText] = useState();
@@ -37,26 +39,30 @@ const ListReport = () => {
   const [currentImg, setCurrentImg] = useState();
 
   useEffect(() => {
+    getDataInit();
+  }, []);
+
+  const getDataInit = () => {
     axios({
-      method: "get",
-      url: process.env.REACT_APP_DOMAIN_API + "/report/listing",
+      method: 'get',
+      url: URL_API + '/report/listing',
       // url: URL_API + "/report/listing",
       headers: {
-        "api-token": API_TOKEN,
-        "project-type": CURRENT_TYPE,
+        'api-token': API_TOKEN,
+        'project-type': CURRENT_TYPE,
       },
     })
       .then(function (response) {
         //handle success
         console.log(response);
-        setLoadingTable(false);
         setDataReport(response.data.list);
+        setLoadingTable(false);
       })
       .catch(function (err) {
         //handle error
         console.log(err);
       });
-  }, []);
+  };
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -76,7 +82,7 @@ const ListReport = () => {
             setSelectedKeys(e.target.value ? [e.target.value] : [])
           }
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: "block" }}
+          style={{ width: 188, marginBottom: 8, display: 'block' }}
         />
         <Space>
           <Button
@@ -99,7 +105,7 @@ const ListReport = () => {
       </div>
     ),
     filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+      <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
     ),
     onFilter: (value, record) =>
       record[dataIndex]
@@ -107,7 +113,7 @@ const ListReport = () => {
             .toString()
             .toLowerCase()
             .includes(value.toLowerCase())
-        : "",
+        : '',
     // onFilterDropdownVisibleChange: visible => {
     //   if (visible) {
     //     setTimeout(() => this.searchInput.select(), 100);
@@ -116,10 +122,10 @@ const ListReport = () => {
     render: (text) =>
       searchedColumn === dataIndex ? (
         <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
           searchWords={[searchText]}
           autoEscape
-          textToHighlight={text ? text.toString() : ""}
+          textToHighlight={text ? text.toString() : ''}
         />
       ) : (
         text
@@ -134,7 +140,7 @@ const ListReport = () => {
 
   const handleReset = (clearFilters) => {
     clearFilters();
-    setSearchText("");
+    setSearchText('');
   };
 
   const search = (value) => {
@@ -143,106 +149,106 @@ const ListReport = () => {
       Object.keys(o).some((k) => {
         // console.log(String(o[k]).toLowerCase() + " - " + value.toLowerCase());
         return (
-          k !== "incident_id" &&
+          k !== 'incident_id' &&
           String(o[k]).normalize().toLowerCase().includes(value.toLowerCase())
         );
-      })
+      }),
     );
     setFilterTable(filterTable);
   };
 
   const columns = [
     {
-      title: "Tên công việc",
-      dataIndex: "title",
+      title: 'Tên công việc',
+      dataIndex: 'title',
       // ...getColumnSearchProps("title"),
     },
     {
-      title: "Mã công việc",
-      dataIndex: "task_id",
+      title: 'Mã công việc',
+      dataIndex: 'task_id',
       sorter: (a, b) => b.task_id - a.task_id,
-      sortDirections: ["descend"],
+      sortDirections: ['descend'],
       // ...getColumnSearchProps("task_id"),
     },
     {
-      title: "Nội dung xử lý sự cố",
-      dataIndex: "content",
+      title: 'Nội dung xử lý sự cố',
+      dataIndex: 'content',
       // ...getColumnSearchProps("content"),
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
+      title: 'Trạng thái',
+      dataIndex: 'status',
       sorter: (a, b) => b.status.charCodeAt(0) - a.status.charCodeAt(0),
-      sortDirections: ["descend"],
+      sortDirections: ['descend'],
       render: (text, record) =>
-        record.status == "waiting" ? (
+        record.status == 'waiting' ? (
           <div
             style={{
-              flexDirection: "row",
-              display: "flex",
-              alignItems: "center",
+              flexDirection: 'row',
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             <div
               style={{
                 width: 10,
                 height: 10,
-                backgroundColor: "red",
+                backgroundColor: 'orange',
                 borderRadius: 5,
               }}
             ></div>
             <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-              {" "}
+              {' '}
               {record.status}
             </p>
           </div>
-        ) : record.status == "doing" ? (
+        ) : record.status == 'accept' ? (
           <div
             style={{
-              flexDirection: "row",
-              display: "flex",
-              alignItems: "center",
+              flexDirection: 'row',
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             <div
               style={{
                 width: 10,
                 height: 10,
-                backgroundColor: "orange",
+                backgroundColor: 'green',
                 borderRadius: 5,
               }}
             ></div>
             <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-              {" "}
-              {record.status}
+              {' '}
+              {'Đã chấp nhận'}
             </p>
           </div>
         ) : (
           <div
             style={{
-              flexDirection: "row",
-              display: "flex",
-              alignItems: "center",
+              flexDirection: 'row',
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             <div
               style={{
                 width: 10,
                 height: 10,
-                backgroundColor: "greenyellow",
+                backgroundColor: 'red',
                 borderRadius: 5,
               }}
             ></div>
             <p style={{ marginLeft: 10, fontSize: 18, marginTop: 10 }}>
-              {" "}
-              {"done"}
+              {' '}
+              {'Đã từ chối'}
             </p>
           </div>
         ),
     },
     {
-      title: "Loại sự cố",
-      dataIndex: "type",
+      title: 'Loại sự cố',
+      dataIndex: 'type',
       render: (text, record) => <p>{codeIncidents[record.type].name}</p>,
       filters: [
         {
@@ -280,18 +286,52 @@ const ListReport = () => {
     //   // ...getColumnSearchProps("updated_at"),
     // },
     {
-      title: "",
-      key: "operation",
-      render: (record) => (
-        <div>
-          <InfoCircleOutlined
-            onClick={(value) => {
-              getInforReport(record.image);
-            }}
-            style={{ color: "blue", marginLeft: 5 }}
-          />
-        </div>
-      ),
+      title: 'Tác vụ',
+      key: 'operation',
+      render: (text, record) =>
+        record.status == 'waiting' ? (
+          <div>
+            <InfoCircleOutlined
+              data-toggle="tooltip"
+              data-placement="top"
+              title="Xem chi tiết"
+              onClick={(value) => {
+                getInforReport(record.image);
+              }}
+              style={{ color: 'blue', marginLeft: 5, fontSize: 22 }}
+            />
+            <CheckOutlined
+              data-toggle="tooltip"
+              data-placement="top"
+              title="Chấp nhận báo cáo"
+              onClick={(value) => {
+                acceptReport(record);
+              }}
+              style={{ color: 'green', marginLeft: 15, fontSize: 22 }}
+            />
+            <CloseOutlined
+              data-toggle="tooltip"
+              data-placement="top"
+              title="Từ chối báo cáo"
+              onClick={(value) => {
+                rejectReport(record);
+              }}
+              style={{ color: 'red', marginLeft: 15, fontSize: 22 }}
+            />
+          </div>
+        ) : (
+          <div>
+            <InfoCircleOutlined
+              data-toggle="tooltip"
+              data-placement="top"
+              title="Xem chi tiết"
+              onClick={(value) => {
+                getInforReport(record.image);
+              }}
+              style={{ color: 'blue', marginLeft: 5, fontSize: 22 }}
+            />
+          </div>
+        ),
     },
   ];
 
@@ -301,26 +341,99 @@ const ListReport = () => {
   };
 
   const handleOk = () => {
-    setCurrentImg("");
+    setCurrentImg('');
     setVisibleModal(false);
   };
   const handleCancel = () => {
-    setCurrentImg("");
+    setCurrentImg('');
     setVisibleModal(false);
   };
 
+  const acceptReport = (record) => {
+    confirmAlert({
+      title: 'Chấp nhận báo cáo',
+      message: 'Bạn chắc chắn muốn chấp nhận báo cáo?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {
+            axios({
+              method: 'post',
+              url: URL_API + `/report/accept?id=${record.id}`,
+              // url: URL_API + "/report/listing",
+              headers: {
+                'api-token': API_TOKEN,
+                'project-type': CURRENT_TYPE,
+              },
+            })
+              .then(function (response) {
+                //handle success
+                console.log(response);
+                setLoadingTable(true);
+                getDataInit();
+              })
+              .catch(function (err) {
+                //handle error
+                console.log('error nè', err);
+              });
+          },
+        },
+        {
+          label: 'No',
+          onClick: () => {},
+        },
+      ],
+    });
+  };
+
+  const rejectReport = (record) => {
+    confirmAlert({
+      title: 'Từ chối báo cáo',
+      message: 'Bạn chắc chắn muốn từ chối báo cáo?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {
+            axios({
+              method: 'post',
+              url: URL_API + `/report/reject?id=${record.id}`,
+              // url: URL_API + "/report/listing",
+              headers: {
+                'api-token': API_TOKEN,
+                'project-type': CURRENT_TYPE,
+              },
+            })
+              .then(function (response) {
+                //handle success
+                console.log(response);
+                setLoadingTable(true);
+                getDataInit();
+              })
+              .catch(function (err) {
+                //handle error
+                console.log('error nè', err);
+              });
+          },
+        },
+        {
+          label: 'No',
+          onClick: () => {},
+        },
+      ],
+    });
+  };
+
   return (
-    
     <div>
       <div className="header" onClick={() => {}}>
         Danh sách báo cáo kết quả xử lý sự cố
       </div>
       <Input.Search
-          style={{ margin: "0 0 10px 0" }}
-          placeholder="Search by..."
-          enterButton
-          onSearch={search}
-        />
+        style={{ margin: '0 0 10px 0' }}
+        placeholder="Search by..."
+        enterButton
+        onSearch={search}
+      />
       <div>
         <Spin spinning={loadingTable} tip="Loading...">
           <Table
