@@ -237,6 +237,7 @@ const ListIncidents = () => {
                           name: data.task_type.name,
                           employees: listEmployees,
                           description: data.task_type.description,
+                          status: data.status
                         };
                         listDetailChild.push(childDataObject);
                       }
@@ -411,6 +412,10 @@ const ListIncidents = () => {
     {
       title: 'Mô tả công việc',
       dataIndex: 'description',
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
     },
     {
       title: '',
