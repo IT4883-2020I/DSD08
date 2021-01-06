@@ -1,7 +1,7 @@
 # DSD_08
 Phát triển phần mềm phân tán 20201 - Nhóm 08
 
-#ENV backend
+### ENV backend
 
 ```
 DB_CONNECTION=pgsql
@@ -17,7 +17,7 @@ CLOUDINARY_API_SECRET=gaY-hfxMvxZn2ZARfo9gC52uVHc
 CLOUDINARY_CLOUD_NAME=ninjahh
 ```
 
-#Install Dependencies
+### Install Dependencies
 ```
 cd frontend
 npm install
@@ -25,7 +25,7 @@ cd backend
 composer install
 ```
 
-#Run
+### Run
 ```
 cd frontend
 npm start
